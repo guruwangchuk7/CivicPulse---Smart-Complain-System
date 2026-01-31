@@ -2,10 +2,12 @@
 
 import Link from 'next/link';
 import { ArrowRight, MapPin, ThumbsUp, Trophy, Github, Linkedin, Mail, Menu, X } from 'lucide-react';
+import AdminLoginModal from '@/components/AdminLoginModal';
 import { useState } from 'react';
 
 export default function LandingPage() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isAdminModalOpen, setIsAdminModalOpen] = useState(false);
 
   return (
     <div className="min-h-screen bg-white text-gray-900 font-sans selection:bg-blue-100 relative">
@@ -22,9 +24,19 @@ export default function LandingPage() {
             </div>
 
             {/* Desktop Links */}
-            <div className="hidden md:flex items-center gap-8">
+            <div className="hidden md:flex items-center gap-6">
               <a href="#features" className="text-sm font-medium text-gray-600 hover:text-blue-600 transition-colors">Features</a>
               <a href="#developer" className="text-sm font-medium text-gray-600 hover:text-blue-600 transition-colors">Developer</a>
+
+              <div className="h-6 w-px bg-gray-200 mx-2" />
+
+              <button
+                onClick={() => setIsAdminModalOpen(true)}
+                className="text-sm font-medium text-gray-600 hover:text-black transition-colors"
+              >
+                Admin
+              </button>
+
               <Link
                 href="/map"
                 className="bg-black text-white px-5 py-2 rounded-full text-sm font-medium hover:bg-gray-800 transition-colors hover:shadow-lg active:scale-95"
@@ -47,12 +59,20 @@ export default function LandingPage() {
           <div className="md:hidden bg-white border-b border-gray-100 px-6 py-4 space-y-4 shadow-lg absolute w-full">
             <a href="#features" className="block text-base font-medium text-gray-600 hover:text-blue-600" onClick={() => setIsMenuOpen(false)}>Features</a>
             <a href="#developer" className="block text-base font-medium text-gray-600 hover:text-blue-600" onClick={() => setIsMenuOpen(false)}>Developer</a>
+            <button
+              onClick={() => { setIsMenuOpen(false); setIsAdminModalOpen(true); }}
+              className="block text-base font-medium text-gray-600 hover:text-black w-full text-left"
+            >
+              Admin Dashboard
+            </button>
             <Link href="/map" className="block w-full text-center bg-blue-600 text-white px-5 py-3 rounded-lg font-medium hover:bg-blue-700" onClick={() => setIsMenuOpen(false)}>
               Launch App
             </Link>
           </div>
         )}
       </nav>
+
+      <AdminLoginModal isOpen={isAdminModalOpen} onClose={() => setIsAdminModalOpen(false)} />
 
       {/* Hero Section */}
       <header className="relative isolate px-6 pt-32 lg:px-8 pb-16 md:pb-32">

@@ -127,7 +127,7 @@ export default function MapHome() {
                     </div>
                 )}
 
-                <p className="text-sm text-gray-700 line-clamp-3">{report.description}</p>
+                <p className="text-sm text-gray-500 line-clamp-3">{report.description}</p>
                 <div className="mt-3 flex items-center justify-between">
                     <span className={`text-xs px-2.5 py-1 rounded-full font-bold border ${contextStatusColor(report.status)}`}>
                         {report.status === 'IN_PROGRESS' ? 'PENDING' : report.status}

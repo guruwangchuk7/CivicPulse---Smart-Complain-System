@@ -87,7 +87,7 @@ function FeedItem({ report, onClick }: { report: Report; onClick: () => void }) 
                         {new Date(report.created_at).toLocaleDateString()}
                     </span>
                 </div>
-                <p className="text-sm font-medium text-gray-900 line-clamp-2 mb-2">
+                <p className="text-sm font-medium text-gray-600 line-clamp-2 mb-2">
                     {report.description}
                 </p>
 
