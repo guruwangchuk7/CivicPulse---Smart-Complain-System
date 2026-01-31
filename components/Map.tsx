@@ -1,6 +1,6 @@
 'use client';
 
-import { MapContainer, TileLayer, Marker, Popup, useMapEvents } from 'react-leaflet';
+import { MapContainer, TileLayer, Marker, Popup, Tooltip, useMapEvents } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import 'leaflet-defaulticon-compatibility/dist/leaflet-defaulticon-compatibility.css';
 import 'leaflet-defaulticon-compatibility';
@@ -15,6 +15,7 @@ interface MapProps {
         id: string;
         position: [number, number];
         content?: React.ReactNode;
+        tooltip?: string; // New prop for content shown on hover/permanent
     }>;
 }
 
@@ -46,6 +47,14 @@ const Map = ({ center = [51.505, -0.09], zoom = 13, onLocationSelect, markers = 
             {onLocationSelect && <LocationMarker onSelect={onLocationSelect} />}
             {markers.map((marker) => (
                 <Marker key={marker.id} position={marker.position}>
+                    {marker.tooltip && (
+                        <Tooltip direction="top" offset={[0, -20]} opacity={1} permanent className="font-bold text-xs bg-transparent border-none shadow-none text-black">
+                            {/* Styling className requires global CSS or Leaflet overrides, but standard permanent works. 
+                                Let's just use standard permanent for now, maybe add a class if we had global css. 
+                                Leaflet tooltips have white bg and border by default. */}
+                            {marker.tooltip}
+                        </Tooltip>
+                    )}
                     {marker.content && <Popup>{marker.content}</Popup>}
                 </Marker>
             ))}

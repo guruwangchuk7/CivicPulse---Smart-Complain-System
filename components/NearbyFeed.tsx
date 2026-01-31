@@ -96,7 +96,9 @@ function FeedItem({ report, onClick }: { report: Report; onClick: () => void }) 
                         <ChevronUp className="w-4 h-4 text-green-600" />
                         <span className="font-bold text-gray-800">{votes}</span>
                     </div>
-                    <span className="text-xs">{report.status}</span>
+                    <span className="text-xs font-semibold">
+                        {report.status === 'IN_PROGRESS' ? 'PENDING' : report.status}
+                    </span>
                 </div>
             </div>
         </div>

@@ -57,6 +57,10 @@ export default function AdminDashboard() {
         }
     };
 
+    const [filter, setFilter] = useState<'ALL' | 'OPEN' | 'IN_PROGRESS' | 'RESOLVED'>('ALL');
+
+    const filteredReports = reports.filter(r => filter === 'ALL' || r.status === filter);
+
     return (
         <div className="min-h-screen bg-gray-50 p-6 md:p-12">
             <div className="max-w-6xl mx-auto">
@@ -68,10 +72,30 @@ export default function AdminDashboard() {
                     <h1 className="text-3xl font-bold text-gray-900">Admin Dashboard</h1>
                 </div>
 
+                {/* Filters */}
+                <div className="flex gap-2 mb-6">
+                    {['ALL', 'OPEN', 'PENDING', 'RESOLVED'].map((statusLabel) => {
+                        const statusKey = statusLabel === 'PENDING' ? 'IN_PROGRESS' : statusLabel;
+                        const isActive = filter === statusKey;
+                        return (
+                            <button
+                                key={statusLabel}
+                                onClick={() => setFilter(statusKey as any)}
+                                className={`px-4 py-2 rounded-full text-sm font-semibold transition-all ${isActive
+                                        ? 'bg-black text-white shadow-md'
+                                        : 'bg-white text-gray-600 hover:bg-gray-100 border border-gray-200'
+                                    }`}
+                            >
+                                {statusLabel}
+                            </button>
+                        );
+                    })}
+                </div>
+
                 <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
                     <div className="p-6 border-b border-gray-100 flex justify-between items-center bg-gray-50/50">
                         <h2 className="text-lg font-semibold text-gray-700">Manage Reports</h2>
-                        <span className="text-sm text-gray-500">{reports.length} Total Reports</span>
+                        <span className="text-sm text-gray-500">{filteredReports.length} Reports</span>
                     </div>
 
                     {loading ? (
@@ -90,7 +114,7 @@ export default function AdminDashboard() {
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-gray-100">
-                                    {reports.map((report) => (
+                                    {filteredReports.map((report) => (
                                         <tr key={report.id} className="hover:bg-gray-50/50 transition-colors">
                                             <td className="p-4 text-sm text-gray-500 whitespace-nowrap">
                                                 {new Date(report.created_at).toLocaleDateString()}
@@ -108,7 +132,7 @@ export default function AdminDashboard() {
                                             </td>
                                             <td className="p-4">
                                                 <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(report.status)}`}>
-                                                    {report.status}
+                                                    {report.status === 'IN_PROGRESS' ? 'PENDING' : report.status}
                                                 </span>
                                             </td>
                                             <td className="p-4 text-right">
@@ -123,7 +147,7 @@ export default function AdminDashboard() {
                                                     <button
                                                         onClick={() => updateStatus(report.id, 'IN_PROGRESS')}
                                                         className="p-1.5 rounded hover:bg-yellow-100 text-yellow-600"
-                                                        title="Mark In Progress"
+                                                        title="Mark as Pending"
                                                     >
                                                         <Clock className="w-4 h-4" />
                                                     </button>

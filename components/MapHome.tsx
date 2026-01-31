@@ -40,8 +40,8 @@ export default function MapHome() {
         setCurrentUserId(getOrCreateUserId());
     }, []);
 
-    // Default to London for now, can use geolocation later
-    const defaultCenter: [number, number] = [51.505, -0.09];
+    // Default to Bhutan Thimphu
+    const defaultCenter: [number, number] = [27.4728, 89.6393];
 
     const fetchReports = async () => {
         try {
@@ -111,6 +111,7 @@ export default function MapHome() {
     const markers = reports.map((report) => ({
         id: report.id,
         position: [report.lat, report.lng] as [number, number],
+        tooltip: report.category, // Show category on hover/permanent
         content: (
             <div className="p-2 min-w-[200px]">
                 <div className="flex items-center gap-2 mb-2">
@@ -127,12 +128,22 @@ export default function MapHome() {
                 )}
 
                 <p className="text-sm text-gray-700 line-clamp-3">{report.description}</p>
-                <div className="mt-2 flex items-center justify-between">
-                    <span className="text-xs px-2 py-1 bg-gray-100 rounded-full font-medium">{report.status}</span>
+                <div className="mt-3 flex items-center justify-between">
+                    <span className={`text-xs px-2.5 py-1 rounded-full font-bold border ${contextStatusColor(report.status)}`}>
+                        {report.status === 'IN_PROGRESS' ? 'PENDING' : report.status}
+                    </span>
                 </div>
             </div>
         )
     }));
+
+    function contextStatusColor(status: string) {
+        switch (status) {
+            case 'RESOLVED': return 'bg-green-100 text-green-700 border-green-200';
+            case 'IN_PROGRESS': return 'bg-yellow-100 text-yellow-700 border-yellow-200';
+            default: return 'bg-red-50 text-red-600 border-red-100';
+        }
+    }
 
 
     return (

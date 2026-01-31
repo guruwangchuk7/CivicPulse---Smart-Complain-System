@@ -211,7 +211,7 @@ export default function CreateReportModal({ isOpen, onClose, location, onSuccess
                                         value={description}
                                         onChange={(e) => setDescription(e.target.value)}
                                         placeholder="Describe the issue... (Optional)"
-                                        className="w-full p-4 border border-gray-200 rounded-xl focus:ring-2 focus:ring-black focus:border-transparent outline-none min-h-[120px] resize-none text-base"
+                                        className="w-full p-4 border border-gray-200 rounded-xl focus:ring-2 focus:ring-black focus:border-transparent outline-none min-h-[120px] resize-none text-base text-gray-900 placeholder:text-gray-500"
                                     />
                                 </div>
                             </div>
