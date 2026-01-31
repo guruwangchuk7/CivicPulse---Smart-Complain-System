@@ -33,6 +33,7 @@ export default function AdminLoginModal({ isOpen, onClose }: AdminLoginModalProp
 
         if (ALLOWED_ADMINS.includes(email.trim().toLowerCase())) {
             toast.success('Welcome back, Admin!');
+            sessionStorage.setItem('isAdmin', 'true');
             router.push('/admin');
             onClose();
         } else {

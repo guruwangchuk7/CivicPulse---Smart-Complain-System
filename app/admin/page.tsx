@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { ArrowLeft, CheckCircle, Clock, AlertCircle } from 'lucide-react';
 import { Report } from '@/types';
 import toast from 'react-hot-toast';
@@ -9,6 +10,15 @@ import toast from 'react-hot-toast';
 export default function AdminDashboard() {
     const [reports, setReports] = useState<Report[]>([]);
     const [loading, setLoading] = useState(true);
+    const router = useRouter();
+
+    useEffect(() => {
+        const isAdmin = sessionStorage.getItem('isAdmin');
+        if (!isAdmin) {
+            toast.error('Unauthorized access');
+            router.push('/');
+        }
+    }, [router]);
 
     const fetchReports = async () => {
         setLoading(true);
@@ -82,8 +92,8 @@ export default function AdminDashboard() {
                                 key={statusLabel}
                                 onClick={() => setFilter(statusKey as any)}
                                 className={`px-4 py-2 rounded-full text-sm font-semibold transition-all ${isActive
-                                        ? 'bg-black text-white shadow-md'
-                                        : 'bg-white text-gray-600 hover:bg-gray-100 border border-gray-200'
+                                    ? 'bg-black text-white shadow-md'
+                                    : 'bg-white text-gray-600 hover:bg-gray-100 border border-gray-200'
                                     }`}
                             >
                                 {statusLabel}
