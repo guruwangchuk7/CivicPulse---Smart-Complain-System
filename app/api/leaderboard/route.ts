@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { supabase } from '@/lib/supabase';
+import { db } from '@/lib/db';
 
 export const dynamic = 'force-dynamic';
 
@@ -10,36 +10,25 @@ export async function GET(request: Request) {
         // If you have a 'users' table, join it.
 
         // 1. Top Reporters (Count of reports per user_id)
-        const { data: reportCounts, error: reportError } = await supabase
-            .from('reports')
-            .select('user_id');
+        // 1. Top Reporters (Count of reports per user_id)
+        // Group by user_id and count reports. Each report = 10 points.
+        const query = `
+            SELECT user_id, COUNT(*) as report_count 
+            FROM reports 
+            GROUP BY user_id 
+            ORDER BY report_count DESC 
+            LIMIT 10
+        `;
 
-        if (reportError) {
-            console.error('Supabase Error:', reportError);
-            throw reportError;
-        }
+        const [rows] = await db.execute(query);
+        const reportCounts = rows as any[];
 
-        console.log('Report Counts:', reportCounts);
-
-        // Aggregate in JS (for speed/simplicity vs complex SQL RPC for now)
-        const userScores: Record<string, { userId: string, score: number, reports: number, votes: number }> = {};
-
-        reportCounts?.forEach(r => {
-            if (!r.user_id) return;
-            if (!userScores[r.user_id]) {
-                userScores[r.user_id] = { userId: r.user_id, score: 0, reports: 0, votes: 0 };
-            }
-            userScores[r.user_id].reports += 1;
-            userScores[r.user_id].score += 10; // 10 points per report
-        });
-
-        // 2. Votes Received (Optional complexity: count votes on user's reports)
-        // Skipped for MVP unless we do a deep join. 
-        // Let's just stick to "Most Active Reporters" for the leaderboard.
-
-        const leaderboard = Object.values(userScores)
-            .sort((a, b) => b.score - a.score)
-            .slice(0, 10); // Top 10
+        const leaderboard = reportCounts.map((row: any) => ({
+            userId: row.user_id,
+            reports: row.report_count,
+            votes: 0, // Placeholder
+            score: row.report_count * 10
+        }));
 
         return NextResponse.json(leaderboard);
 

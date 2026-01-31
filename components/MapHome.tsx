@@ -2,11 +2,13 @@
 
 import dynamic from 'next/dynamic';
 import { useState, useEffect } from 'react';
-import { Plus, MapPin, List, Trophy } from 'lucide-react';
+import { Plus, MapPin, List, Trophy, Loader2 } from 'lucide-react';
 import Link from 'next/link';
+import toast from 'react-hot-toast';
 import Chatbot from './Chatbot';
 import CreateReportModal from './CreateReportModal';
 import NearbyFeed from './NearbyFeed';
+import { getOrCreateUserId } from '@/lib/user';
 import { Report } from '@/types';
 
 // Dynamically import Map to avoid SSR issues with Leaflet
@@ -31,8 +33,12 @@ export default function MapHome() {
     const [showFeed, setShowFeed] = useState(false);
     const [newReportLocation, setNewReportLocation] = useState<{ lat: number; lng: number } | null>(null);
 
-    // Mock User ID for MVP
-    const currentUserId = 'mock-user-id';
+    const [currentUserId, setCurrentUserId] = useState<string>('');
+
+    useEffect(() => {
+        // Initialize user ID on client side
+        setCurrentUserId(getOrCreateUserId());
+    }, []);
 
     // Default to London for now, can use geolocation later
     const defaultCenter: [number, number] = [51.505, -0.09];
@@ -61,19 +67,32 @@ export default function MapHome() {
 
     const handleStartReporting = () => {
         setIsReporting(true);
+        const toastId = toast.loading('Locating you...');
+
         if (navigator.geolocation) {
             navigator.geolocation.getCurrentPosition(
                 (position) => {
+                    toast.dismiss(toastId);
+                    toast.success('Location found!');
                     setNewReportLocation({
                         lat: position.coords.latitude,
                         lng: position.coords.longitude
                     });
                 },
                 (error) => {
+                    toast.dismiss(toastId);
                     console.error("Error getting location:", error);
-                    // Fallback to manual selection if geolocation fails
-                }
+                    // Don't show an "error" toast, show a helpful instruction instead
+                    toast('📍 Tap anywhere on the map to place the pin', {
+                        icon: '👇',
+                        duration: 5000
+                    });
+                },
+                { timeout: 7000, enableHighAccuracy: true }
             );
+        } else {
+            toast.dismiss(toastId);
+            toast('Tap on the map to report', { icon: '📍' });
         }
     };
 
@@ -129,32 +148,46 @@ export default function MapHome() {
             </div>
 
             {/* Floating Action Button */}
+            {/* Premium Floating Action Bar */}
             {(!isReporting || !newReportLocation) && (
-                <div className="absolute bottom-6 right-6 z-10 flex flex-col gap-4">
-                    <Link
-                        href="/leaderboard"
-                        className="bg-white text-black p-4 rounded-full shadow-lg hover:bg-gray-100 transition-colors flex items-center justify-center"
-                        aria-label="Leaderboard"
-                    >
-                        <Trophy className="w-6 h-6 text-yellow-500" />
-                    </Link>
+                <div className="absolute bottom-8 left-6 right-6 z-10 flex items-end justify-between pointer-events-none">
+                    {/* Left Actions */}
+                    <div className="flex flex-col gap-3 pointer-events-auto">
+                        <Link
+                            href="/leaderboard"
+                            className="bg-white/90 backdrop-blur-md p-3 rounded-full shadow-lg hover:bg-white transition-all hover:scale-105 border border-white/20"
+                        >
+                            <Trophy className="w-6 h-6 text-yellow-500" />
+                        </Link>
+                        <button
+                            onClick={() => setShowFeed(!showFeed)}
+                            className="bg-white/90 backdrop-blur-md p-3 rounded-full shadow-lg hover:bg-white transition-all hover:scale-105 border border-white/20"
+                        >
+                            <List className="w-6 h-6 text-gray-700" />
+                        </button>
+                    </div>
 
-                    <button
-                        onClick={() => setShowFeed(!showFeed)}
-                        className="bg-white text-black p-4 rounded-full shadow-lg hover:bg-gray-100 transition-colors flex items-center justify-center"
-                        aria-label="Toggle Feed"
-                    >
-                        <List className="w-6 h-6" />
-                    </button>
-
+                    {/* Center Report Button - Premium Card Style */}
                     <button
                         onClick={handleStartReporting}
-                        className="bg-black text-white p-4 rounded-full shadow-lg hover:bg-gray-800 transition-colors flex items-center justify-center animate-bounce-subtle"
-                        aria-label="Report Issue"
+                        className="pointer-events-auto group relative flex items-center justify-center bg-black text-white px-8 py-4 rounded-2xl shadow-2xl hover:bg-gray-900 transition-all hover:scale-105 hover:-translate-y-1 active:scale-95"
                     >
-                        <Plus className="w-6 h-6" />
-                        <span className="ml-2 font-medium">Report</span>
+                        {/* Glow Effect */}
+                        <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-blue-600 to-purple-600 opacity-0 group-hover:opacity-20 blur-xl transition-opacity" />
+
+                        <div className="flex items-center gap-3 relative z-10">
+                            <div className="bg-white/20 p-1.5 rounded-lg group-hover:bg-white/30 transition-colors">
+                                <Plus className="w-5 h-5" />
+                            </div>
+                            <div className="flex flex-col items-start">
+                                <span className="text-sm font-bold leading-none">Report Issue</span>
+                                <span className="text-[10px] text-gray-400 font-medium tracking-wide">EARN POINTS</span>
+                            </div>
+                        </div>
                     </button>
+
+                    {/* Right spacer for balance or future button */}
+                    <div className="w-12" />
                 </div>
             )}
 
@@ -174,11 +207,19 @@ export default function MapHome() {
 
             {/* Instruction Overlay when reporting */}
             {isReporting && !newReportLocation && (
-                <div className="absolute top-6 left-1/2 -translate-x-1/2 z-10 bg-black/80 text-white px-6 py-3 rounded-full shadow-lg backdrop-blur-md">
-                    <div className="flex items-center gap-2">
-                        <MapPin className="w-4 h-4" />
-                        <span className="font-medium text-sm">Tap location on map</span>
-                        <button onClick={() => setIsReporting(false)} className="ml-4 text-xs bg-white/20 px-2 py-1 rounded hover:bg-white/30">Cancel</button>
+                <div className="absolute top-24 left-1/2 -translate-x-1/2 z-30 animate-in fade-in slide-in-from-top-4 duration-500">
+                    <div className="bg-black/90 text-white px-6 py-4 rounded-2xl shadow-2xl backdrop-blur-md flex flex-col items-center gap-2 border border-white/20">
+                        <div className="flex items-center gap-3">
+                            <MapPin className="w-5 h-5 text-blue-400 animate-bounce" />
+                            <span className="font-bold text-lg">Tap location on map</span>
+                        </div>
+                        <p className="text-xs text-gray-400">Pinpoint the issue to continue</p>
+                        <button
+                            onClick={() => setIsReporting(false)}
+                            className="mt-2 w-full py-1.5 text-xs font-semibold bg-white/10 hover:bg-white/20 rounded-lg transition-colors"
+                        >
+                            Cancel
+                        </button>
                     </div>
                 </div>
             )}
@@ -188,6 +229,7 @@ export default function MapHome() {
                 onClose={() => setNewReportLocation(null)}
                 location={newReportLocation}
                 onSuccess={handleReportSuccess}
+                userId={currentUserId}
             />
 
             <Chatbot />
