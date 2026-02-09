@@ -8,6 +8,7 @@ import { LatLngExpression } from 'leaflet';
 import { useEffect, useState } from 'react';
 import MarkerClusterGroup from 'react-leaflet-cluster';
 import L from 'leaflet';
+import { useTheme } from 'next-themes';
 
 interface MapProps {
     center?: LatLngExpression;
@@ -49,11 +50,16 @@ const createCustomClusterIcon = (cluster: any) => {
 };
 
 const Map = ({ center = [51.505, -0.09], zoom = 13, onLocationSelect, markers = [], onMarkerClick }: MapProps) => {
+    const { theme } = useTheme();
+
     return (
         <MapContainer center={center} zoom={zoom} scrollWheelZoom={true} className="h-full w-full">
             <TileLayer
-                attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
+                url={theme === 'dark'
+                    ? "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
+                    : "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                }
             />
             {onLocationSelect && <LocationMarker onSelect={onLocationSelect} />}
             <MarkerClusterGroup

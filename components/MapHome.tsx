@@ -9,6 +9,7 @@ import Chatbot from './Chatbot';
 import CreateReportModal from './CreateReportModal';
 import NearbyFeed from './NearbyFeed';
 import ReportDetailDrawer from './ReportDetailDrawer';
+import { ThemeToggle } from './ThemeToggle';
 import { getOrCreateUserId } from '@/lib/user';
 import { Report } from '@/types';
 
@@ -144,6 +145,11 @@ export default function MapHome() {
                 />
             </div>
 
+            {/* Theme Toggle */}
+            <div className="absolute top-6 right-6 z-10">
+                <ThemeToggle />
+            </div>
+
             {/* Filter Bar */}
             <div className="absolute top-6 left-1/2 -translate-x-1/2 z-10 flex gap-2 overflow-x-auto max-w-[90vw] p-2 no-scrollbar">
                 {categories.map((cat) => (
@@ -151,8 +157,8 @@ export default function MapHome() {
                         key={cat.id}
                         onClick={() => setFilterCategory(cat.id)}
                         className={`px-4 py-2 rounded-full text-xs font-bold shadow-lg backdrop-blur-md transition-all whitespace-nowrap ${filterCategory === cat.id
-                            ? 'bg-black text-white scale-105'
-                            : 'bg-white/80 text-gray-700 hover:bg-white'
+                            ? 'bg-black text-white scale-105 dark:bg-white dark:text-black'
+                            : 'bg-white/80 text-gray-700 hover:bg-white dark:bg-black/80 dark:text-gray-300 dark:hover:bg-black'
                             }`}
                     >
                         {cat.label}
@@ -168,15 +174,15 @@ export default function MapHome() {
                     <div className="flex flex-col gap-3 pointer-events-auto">
                         <Link
                             href="/leaderboard"
-                            className="bg-white/90 backdrop-blur-md p-3 rounded-full shadow-lg hover:bg-white transition-all hover:scale-105 border border-white/20"
+                            className="bg-white/90 backdrop-blur-md p-3 rounded-full shadow-lg hover:bg-white transition-all hover:scale-105 border border-white/20 dark:bg-black/90 dark:border-gray-700 dark:hover:bg-black"
                         >
                             <Trophy className="w-6 h-6 text-yellow-500" />
                         </Link>
                         <button
                             onClick={() => setShowFeed(!showFeed)}
-                            className="bg-white/90 backdrop-blur-md p-3 rounded-full shadow-lg hover:bg-white transition-all hover:scale-105 border border-white/20"
+                            className="bg-white/90 backdrop-blur-md p-3 rounded-full shadow-lg hover:bg-white transition-all hover:scale-105 border border-white/20 dark:bg-black/90 dark:border-gray-700 dark:hover:bg-black"
                         >
-                            <List className="w-6 h-6 text-gray-700" />
+                            <List className="w-6 h-6 text-gray-700 dark:text-gray-300" />
                         </button>
                     </div>
 

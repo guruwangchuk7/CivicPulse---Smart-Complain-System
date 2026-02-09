@@ -18,13 +18,13 @@ export default function NearbyFeed({ reports, onSelectReport, currentUserId }: N
     // Ideally, 'reports' prop should include 'vote_count'.
 
     return (
-        <div className="bg-white rounded-t-3xl shadow-[0_-5px_20px_rgba(0,0,0,0.1)] overflow-hidden flex flex-col h-[50vh] sm:h-auto sm:max-h-[80vh]">
-            <div className="p-4 border-b bg-gray-50 flex justify-center">
+        <div className="bg-white dark:bg-gray-900 rounded-t-3xl shadow-[0_-5px_20px_rgba(0,0,0,0.1)] overflow-hidden flex flex-col h-[50vh] sm:h-auto sm:max-h-[80vh] border-t border-gray-200 dark:border-gray-800">
+            <div className="p-4 border-b dark:border-gray-800 bg-gray-50 dark:bg-gray-950 flex justify-center">
                 <div className="w-12 h-1.5 bg-gray-300 rounded-full" />
             </div>
 
-            <div className="p-4 border-b">
-                <h2 className="text-xl font-bold">Nearby Issues</h2>
+            <div className="p-4 border-b dark:border-gray-800">
+                <h2 className="text-xl font-bold dark:text-white">Nearby Issues</h2>
                 <p className="text-gray-500 text-sm">Sorted by urgency</p>
             </div>
 
@@ -64,10 +64,10 @@ function FeedItem({ report, onClick }: { report: Report; onClick: () => void }) 
     return (
         <div
             onClick={onClick}
-            className="border rounded-xl p-4 flex gap-4 hover:border-black cursor-pointer transition-colors bg-white shadow-sm"
+            className="border dark:border-gray-800 rounded-xl p-4 flex gap-4 hover:border-black dark:hover:border-gray-500 cursor-pointer transition-colors bg-white dark:bg-gray-900 shadow-sm"
         >
             {/* Thumbnail */}
-            <div className="w-20 h-20 bg-gray-100 rounded-lg flex-shrink-0 overflow-hidden">
+            <div className="w-20 h-20 bg-gray-100 dark:bg-gray-800 rounded-lg flex-shrink-0 overflow-hidden">
                 {report.photo_url ? (
                     <img src={report.photo_url} alt="Report" className="w-full h-full object-cover" />
                 ) : (
@@ -87,14 +87,14 @@ function FeedItem({ report, onClick }: { report: Report; onClick: () => void }) 
                         {new Date(report.created_at).toLocaleDateString()}
                     </span>
                 </div>
-                <p className="text-sm font-medium text-gray-600 line-clamp-2 mb-2">
+                <p className="text-sm font-medium text-gray-600 dark:text-gray-300 line-clamp-2 mb-2">
                     {report.description}
                 </p>
 
                 <div className="flex items-center gap-4 text-sm text-gray-500">
                     <div className="flex items-center gap-1">
                         <ChevronUp className="w-4 h-4 text-green-600" />
-                        <span className="font-bold text-gray-800">{votes}</span>
+                        <span className="font-bold text-gray-800 dark:text-gray-200">{votes}</span>
                     </div>
                     <span className="text-xs font-semibold">
                         {report.status === 'IN_PROGRESS' ? 'PENDING' : report.status}

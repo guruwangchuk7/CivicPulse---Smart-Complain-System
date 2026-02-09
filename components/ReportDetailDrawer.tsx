@@ -179,8 +179,8 @@ export default function ReportDetailDrawer({ isOpen, onClose, report, currentUse
                         onClick={handleVote}
                         disabled={hasVoted || isVoting}
                         className={`flex-1 flex items-center justify-center gap-2 px-6 py-4 rounded-xl font-bold text-lg transition-all transform active:scale-95 ${hasVoted
-                                ? 'bg-green-100 text-green-700 cursor-default'
-                                : 'bg-black text-white hover:bg-gray-800 shadow-xl shadow-gray-200'
+                            ? 'bg-green-100 text-green-700 cursor-default'
+                            : 'bg-black text-white hover:bg-gray-800 shadow-xl shadow-gray-200'
                             }`}
                     >
                         {hasVoted ? (
