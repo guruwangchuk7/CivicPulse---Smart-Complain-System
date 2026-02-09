@@ -8,6 +8,7 @@ import toast from 'react-hot-toast';
 import Chatbot from './Chatbot';
 import CreateReportModal from './CreateReportModal';
 import NearbyFeed from './NearbyFeed';
+import ReportDetailDrawer from './ReportDetailDrawer';
 import { getOrCreateUserId } from '@/lib/user';
 import { Report } from '@/types';
 
@@ -17,21 +18,14 @@ const Map = dynamic(() => import('./Map'), {
     loading: () => <div className="h-full w-full bg-gray-100 animate-pulse flex items-center justify-center">Loading Map...</div>
 });
 
-const getCategoryColor = (category: string) => {
-    switch (category) {
-        case 'POTHOLE': return 'bg-red-500';
-        case 'TRASH': return 'bg-yellow-500';
-        case 'HAZARD': return 'bg-orange-500';
-        case 'OTHER': return 'bg-blue-500';
-        default: return 'bg-gray-500';
-    }
-};
+
 
 export default function MapHome() {
     const [reports, setReports] = useState<Report[]>([]);
     const [isReporting, setIsReporting] = useState(false);
     const [showFeed, setShowFeed] = useState(false);
     const [newReportLocation, setNewReportLocation] = useState<{ lat: number; lng: number } | null>(null);
+    const [selectedReport, setSelectedReport] = useState<Report | null>(null);
 
     const [currentUserId, setCurrentUserId] = useState<string>('');
 
@@ -105,45 +99,24 @@ export default function MapHome() {
     const handleSelectReportFromFeed = (report: Report) => {
         // In future: Pan map to location
         console.log('Selected report:', report);
+        setSelectedReport(report);
         setShowFeed(false);
+    };
+
+    const handleMarkerClick = (reportId: string) => {
+        const report = reports.find(r => r.id === reportId);
+        if (report) {
+            setSelectedReport(report);
+        }
     };
 
     const markers = reports.map((report) => ({
         id: report.id,
         position: [report.lat, report.lng] as [number, number],
         tooltip: report.category, // Show category on hover/permanent
-        content: (
-            <div className="p-2 min-w-[200px]">
-                <div className="flex items-center gap-2 mb-2">
-                    <div className={`w-3 h-3 rounded-full ${getCategoryColor(report.category)}`} />
-                    <span className="font-bold text-sm tracking-wide">{report.category}</span>
-                    <span className="text-xs text-gray-400 ml-auto">{new Date(report.created_at).toLocaleDateString()}</span>
-                </div>
-
-                {report.photo_url && (
-                    <div className="w-full h-24 mb-2 rounded bg-gray-100 overflow-hidden relative">
-                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img src={report.photo_url} alt={report.category} className="absolute inset-0 w-full h-full object-cover" />
-                    </div>
-                )}
-
-                <p className="text-sm text-gray-500 line-clamp-3">{report.description}</p>
-                <div className="mt-3 flex items-center justify-between">
-                    <span className={`text-xs px-2.5 py-1 rounded-full font-bold border ${contextStatusColor(report.status)}`}>
-                        {report.status === 'IN_PROGRESS' ? 'PENDING' : report.status}
-                    </span>
-                </div>
-            </div>
-        )
     }));
 
-    function contextStatusColor(status: string) {
-        switch (status) {
-            case 'RESOLVED': return 'bg-green-100 text-green-700 border-green-200';
-            case 'IN_PROGRESS': return 'bg-yellow-100 text-yellow-700 border-yellow-200';
-            default: return 'bg-red-50 text-red-600 border-red-100';
-        }
-    }
+
 
 
     return (
@@ -155,6 +128,7 @@ export default function MapHome() {
                     zoom={13}
                     onLocationSelect={handleLocationSelect}
                     markers={markers}
+                    onMarkerClick={handleMarkerClick}
                 />
             </div>
 
@@ -241,6 +215,13 @@ export default function MapHome() {
                 location={newReportLocation}
                 onSuccess={handleReportSuccess}
                 userId={currentUserId}
+            />
+
+            <ReportDetailDrawer
+                isOpen={!!selectedReport}
+                onClose={() => setSelectedReport(null)}
+                report={selectedReport}
+                currentUserId={currentUserId}
             />
 
             <Chatbot />

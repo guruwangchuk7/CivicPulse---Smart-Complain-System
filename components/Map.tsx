@@ -19,6 +19,7 @@ interface MapProps {
         content?: React.ReactNode;
         tooltip?: string; // New prop for content shown on hover/permanent
     }>;
+    onMarkerClick?: (id: string) => void;
 }
 
 function LocationMarker({ onSelect }: { onSelect?: (lat: number, lng: number) => void }) {
@@ -47,7 +48,7 @@ const createCustomClusterIcon = (cluster: any) => {
     });
 };
 
-const Map = ({ center = [51.505, -0.09], zoom = 13, onLocationSelect, markers = [] }: MapProps) => {
+const Map = ({ center = [51.505, -0.09], zoom = 13, onLocationSelect, markers = [], onMarkerClick }: MapProps) => {
     return (
         <MapContainer center={center} zoom={zoom} scrollWheelZoom={true} className="h-full w-full">
             <TileLayer
@@ -60,7 +61,17 @@ const Map = ({ center = [51.505, -0.09], zoom = 13, onLocationSelect, markers = 
                 iconCreateFunction={createCustomClusterIcon}
             >
                 {markers.map((marker) => (
-                    <Marker key={marker.id} position={marker.position}>
+                    <Marker
+                        key={marker.id}
+                        position={marker.position}
+                        eventHandlers={{
+                            click: () => {
+                                if (onMarkerClick) {
+                                    onMarkerClick(marker.id);
+                                }
+                            },
+                        }}
+                    >
                         {marker.tooltip && (
                             <Tooltip direction="top" offset={[0, -20]} opacity={1} permanent className="font-bold text-xs bg-transparent border-none shadow-none text-black">
                                 {marker.tooltip}
