@@ -81,11 +81,7 @@ export default function LandingPage() {
         </div>
 
         <div className="mx-auto max-w-2xl text-center">
-          <div className="mb-8 flex justify-center">
-            <div className="relative rounded-full px-3 py-1 text-sm leading-6 text-gray-600 ring-1 ring-gray-900/10 hover:ring-gray-900/20">
-              Announcing our public hackathon release. <a href="#features" className="font-semibold text-blue-600"><span className="absolute inset-0" aria-hidden="true" />Read more <span aria-hidden="true">&rarr;</span></a>
-            </div>
-          </div>
+
           <h1 className="text-4xl font-bold tracking-tight text-gray-900 sm:text-6xl mb-6">
             Fix Your City, <br />
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600">One Tap at a Time.</span>

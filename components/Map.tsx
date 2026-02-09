@@ -6,6 +6,8 @@ import 'leaflet-defaulticon-compatibility/dist/leaflet-defaulticon-compatibility
 import 'leaflet-defaulticon-compatibility';
 import { LatLngExpression } from 'leaflet';
 import { useEffect, useState } from 'react';
+import MarkerClusterGroup from 'react-leaflet-cluster';
+import L from 'leaflet';
 
 interface MapProps {
     center?: LatLngExpression;
@@ -37,6 +39,14 @@ function LocationMarker({ onSelect }: { onSelect?: (lat: number, lng: number) =>
     );
 }
 
+const createCustomClusterIcon = (cluster: any) => {
+    return L.divIcon({
+        html: `<div class="cluster-icon flex items-center justify-center bg-blue-600 text-white font-bold rounded-full w-8 h-8 border-2 border-white shadow-md" style="width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; background-color: #2563eb; color: white; border-radius: 9999px; border: 2px solid white;">${cluster.getChildCount()}</div>`,
+        className: 'custom-marker-cluster',
+        iconSize: L.point(33, 33, true),
+    });
+};
+
 const Map = ({ center = [51.505, -0.09], zoom = 13, onLocationSelect, markers = [] }: MapProps) => {
     return (
         <MapContainer center={center} zoom={zoom} scrollWheelZoom={true} className="h-full w-full">
@@ -45,19 +55,21 @@ const Map = ({ center = [51.505, -0.09], zoom = 13, onLocationSelect, markers = 
                 url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
             />
             {onLocationSelect && <LocationMarker onSelect={onLocationSelect} />}
-            {markers.map((marker) => (
-                <Marker key={marker.id} position={marker.position}>
-                    {marker.tooltip && (
-                        <Tooltip direction="top" offset={[0, -20]} opacity={1} permanent className="font-bold text-xs bg-transparent border-none shadow-none text-black">
-                            {/* Styling className requires global CSS or Leaflet overrides, but standard permanent works. 
-                                Let's just use standard permanent for now, maybe add a class if we had global css. 
-                                Leaflet tooltips have white bg and border by default. */}
-                            {marker.tooltip}
-                        </Tooltip>
-                    )}
-                    {marker.content && <Popup>{marker.content}</Popup>}
-                </Marker>
-            ))}
+            <MarkerClusterGroup
+                chunkedLoading
+                iconCreateFunction={createCustomClusterIcon}
+            >
+                {markers.map((marker) => (
+                    <Marker key={marker.id} position={marker.position}>
+                        {marker.tooltip && (
+                            <Tooltip direction="top" offset={[0, -20]} opacity={1} permanent className="font-bold text-xs bg-transparent border-none shadow-none text-black">
+                                {marker.tooltip}
+                            </Tooltip>
+                        )}
+                        {marker.content && <Popup>{marker.content}</Popup>}
+                    </Marker>
+                ))}
+            </MarkerClusterGroup>
         </MapContainer>
     );
 };
