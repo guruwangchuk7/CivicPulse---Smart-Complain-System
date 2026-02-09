@@ -26,6 +26,7 @@ export default function MapHome() {
     const [showFeed, setShowFeed] = useState(false);
     const [newReportLocation, setNewReportLocation] = useState<{ lat: number; lng: number } | null>(null);
     const [selectedReport, setSelectedReport] = useState<Report | null>(null);
+    const [filterCategory, setFilterCategory] = useState<string>('ALL');
 
     const [currentUserId, setCurrentUserId] = useState<string>('');
 
@@ -110,11 +111,22 @@ export default function MapHome() {
         }
     };
 
-    const markers = reports.map((report) => ({
+    const filteredReports = filterCategory === 'ALL'
+        ? reports
+        : reports.filter(report => report.category === filterCategory);
+
+    const markers = filteredReports.map((report) => ({
         id: report.id,
         position: [report.lat, report.lng] as [number, number],
         tooltip: report.category, // Show category on hover/permanent
     }));
+
+    const categories = [
+        { id: 'ALL', label: 'All Reports' },
+        { id: 'POTHOLE', label: 'Potholes' },
+        { id: 'TRASH', label: 'Trash' },
+        { id: 'HAZARD', label: 'Hazards' }
+    ];
 
 
 
@@ -130,6 +142,22 @@ export default function MapHome() {
                     markers={markers}
                     onMarkerClick={handleMarkerClick}
                 />
+            </div>
+
+            {/* Filter Bar */}
+            <div className="absolute top-6 left-1/2 -translate-x-1/2 z-10 flex gap-2 overflow-x-auto max-w-[90vw] p-2 no-scrollbar">
+                {categories.map((cat) => (
+                    <button
+                        key={cat.id}
+                        onClick={() => setFilterCategory(cat.id)}
+                        className={`px-4 py-2 rounded-full text-xs font-bold shadow-lg backdrop-blur-md transition-all whitespace-nowrap ${filterCategory === cat.id
+                            ? 'bg-black text-white scale-105'
+                            : 'bg-white/80 text-gray-700 hover:bg-white'
+                            }`}
+                    >
+                        {cat.label}
+                    </button>
+                ))}
             </div>
 
             {/* Floating Action Button */}
