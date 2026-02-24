@@ -72,7 +72,8 @@ export async function GET(request: Request) {
         const { searchParams } = new URL(request.url);
         const status = searchParams.get('status');
         const category = searchParams.get('category');
-        const limit = Math.min(parseInt(searchParams.get('limit') || '100'), 200);
+        const limitStr = searchParams.get('limit') || '100';
+        const limit = Math.min(Math.max(parseInt(limitStr) || 100, 1), 200);
 
         // Single query: reports LEFT JOINed with vote counts
         let query = `
@@ -105,7 +106,7 @@ export async function GET(request: Request) {
         query += ' ORDER BY priority_score DESC, r.created_at DESC LIMIT ?';
         params.push(limit);
 
-        const [rows] = await db.execute(query, params);
+        const [rows] = await db.query(query, params);
         return NextResponse.json(rows);
 
     } catch (error: any) {
