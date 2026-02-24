@@ -1,13 +1,9 @@
 import { NextResponse } from 'next/server';
-import { supabase } from '@/lib/supabase';
+import { db } from '@/lib/db';
+import { v4 as uuidv4 } from 'uuid';
 
-export async function POST(request: Request, { params }: { params: { id: string } }) {
-    const { id: reportId } = params;
-
-    // Minimal "auth" - using a generated user ID from client would be better,
-    // but for hackathon we can trust the client passes a consistent 'userId' in the body
-    // or just use IP/Cookie if we wanted to be stricter without login.
-    // For this implementation: We expect { userId: string } in body.
+export async function POST(request: Request, { params }: { params: Promise<{ id: string }> }) {
+    const { id: reportId } = await params;
 
     try {
         const { userId } = await request.json();
@@ -16,46 +12,57 @@ export async function POST(request: Request, { params }: { params: { id: string 
             return NextResponse.json({ error: 'User ID required' }, { status: 400 });
         }
 
-        // Try to insert a vote
-        const { error } = await supabase
-            .from('votes')
-            .insert([{ report_id: reportId, user_id: userId }]);
+        // Check if vote already exists
+        const [existing] = await db.execute(
+            'SELECT id FROM votes WHERE report_id = ? AND user_id = ?',
+            [reportId, userId]
+        );
 
-        if (error) {
-            // Unique violation means already voted
-            if (error.code === '23505') {
-                // Optional: Toggle vote (remove it) - "Toggle Upvote" behavior
-                const { error: deleteError } = await supabase
-                    .from('votes')
-                    .delete()
-                    .match({ report_id: reportId, user_id: userId });
-
-                if (deleteError) throw deleteError;
-
-                return NextResponse.json({ message: 'Vote removed' });
-            }
-            throw error;
+        if ((existing as any[]).length > 0) {
+            // Toggle: remove existing vote
+            await db.execute(
+                'DELETE FROM votes WHERE report_id = ? AND user_id = ?',
+                [reportId, userId]
+            );
+            const [countRows] = await db.execute(
+                'SELECT COUNT(*) as count FROM votes WHERE report_id = ?',
+                [reportId]
+            );
+            const count = (countRows as any)[0].count;
+            return NextResponse.json({ message: 'Vote removed', count, voted: false });
         }
 
-        return NextResponse.json({ message: 'Vote added' });
-    } catch (error) {
+        // Insert new vote
+        const id = uuidv4();
+        await db.execute(
+            'INSERT INTO votes (id, report_id, user_id) VALUES (?, ?, ?)',
+            [id, reportId, userId]
+        );
+
+        const [countRows] = await db.execute(
+            'SELECT COUNT(*) as count FROM votes WHERE report_id = ?',
+            [reportId]
+        );
+        const count = (countRows as any)[0].count;
+        return NextResponse.json({ message: 'Vote added', count, voted: true });
+
+    } catch (error: any) {
         console.error('Error voting:', error);
         return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
     }
 }
 
-export async function GET(request: Request, { params }: { params: { id: string } }) {
-    const { id: reportId } = params;
+export async function GET(request: Request, { params }: { params: Promise<{ id: string }> }) {
+    const { id: reportId } = await params;
 
-    // Get vote count
-    const { count, error } = await supabase
-        .from('votes')
-        .select('*', { count: 'exact', head: true })
-        .eq('report_id', reportId);
-
-    if (error) {
+    try {
+        const [countRows] = await db.execute(
+            'SELECT COUNT(*) as count FROM votes WHERE report_id = ?',
+            [reportId]
+        );
+        const count = (countRows as any)[0].count;
+        return NextResponse.json({ count });
+    } catch (error: any) {
         return NextResponse.json({ error: error.message }, { status: 500 });
     }
-
-    return NextResponse.json({ count });
 }

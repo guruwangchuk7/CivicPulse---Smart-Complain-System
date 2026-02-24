@@ -1,40 +1,65 @@
 'use client';
 
-import { useState, useEffect } from 'react';
 import { Report } from '@/types';
-import { ChevronUp, MapPin } from 'lucide-react';
+import { ChevronUp, MapPin, Flame } from 'lucide-react';
 
 interface NearbyFeedProps {
     reports: Report[];
     userLocation: { lat: number; lng: number } | null;
     onSelectReport: (report: Report) => void;
-    // We'll pass a simple "currentUserId" mock for now
     currentUserId: string;
 }
 
-export default function NearbyFeed({ reports, onSelectReport, currentUserId }: NearbyFeedProps) {
-    // Mock sorting: simply by vote count (we need to fetch votes or have them in the report object)
-    // For MVP speed, let's assume we fetch votes client side or just show them unsorted initially
-    // Ideally, 'reports' prop should include 'vote_count'.
+const getCategoryColor = (category: string) => {
+    switch (category) {
+        case 'POTHOLE': return 'bg-red-100 text-red-700 border-red-200';
+        case 'TRASH': return 'bg-yellow-100 text-yellow-700 border-yellow-200';
+        case 'HAZARD': return 'bg-orange-100 text-orange-700 border-orange-200';
+        default: return 'bg-blue-100 text-blue-700 border-blue-200';
+    }
+};
+
+const CAT_EMOJI: Record<string, string> = {
+    POTHOLE: '🕳️',
+    TRASH: '🗑️',
+    HAZARD: '⚠️',
+    OTHER: '📍',
+};
+
+export default function NearbyFeed({ reports, onSelectReport }: NearbyFeedProps) {
+    // Sort by priority_score (already computed by API) descending
+    const sorted = [...reports].sort((a, b) => (b.priority_score ?? 0) - (a.priority_score ?? 0));
 
     return (
-        <div className="bg-white dark:bg-gray-900 rounded-t-3xl shadow-[0_-5px_20px_rgba(0,0,0,0.1)] overflow-hidden flex flex-col h-[50vh] sm:h-auto sm:max-h-[80vh] border-t border-gray-200 dark:border-gray-800">
-            <div className="p-4 border-b dark:border-gray-800 bg-gray-50 dark:bg-gray-950 flex justify-center">
-                <div className="w-12 h-1.5 bg-gray-300 rounded-full" />
+        <div className="bg-white dark:bg-gray-900 rounded-t-3xl shadow-[0_-5px_20px_rgba(0,0,0,0.12)] overflow-hidden flex flex-col h-[60vh] sm:h-auto sm:max-h-[80vh] border-t border-gray-200 dark:border-gray-800">
+            {/* Handle */}
+            <div className="flex justify-center pt-3 pb-2">
+                <div className="w-10 h-1 bg-gray-300 rounded-full" />
             </div>
 
-            <div className="p-4 border-b dark:border-gray-800">
-                <h2 className="text-xl font-bold dark:text-white">Nearby Issues</h2>
-                <p className="text-gray-500 text-sm">Sorted by urgency</p>
+            {/* Title */}
+            <div className="px-4 pb-3 border-b dark:border-gray-800 flex items-center justify-between">
+                <div>
+                    <h2 className="text-lg font-bold dark:text-white flex items-center gap-2">
+                        <MapPin className="w-4 h-4 text-blue-500" />
+                        Nearby Issues
+                    </h2>
+                    <p className="text-xs text-gray-400 mt-0.5">Sorted by priority score</p>
+                </div>
+                <span className="text-xs bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 px-2.5 py-1 rounded-full font-medium">
+                    {reports.length} reports
+                </span>
             </div>
 
-            <div className="overflow-y-auto flex-1 p-4 space-y-4">
-                {reports.map((report) => (
+            {/* List */}
+            <div className="overflow-y-auto flex-1 p-3 space-y-2.5">
+                {sorted.map((report) => (
                     <FeedItem key={report.id} report={report} onClick={() => onSelectReport(report)} />
                 ))}
-                {reports.length === 0 && (
-                    <div className="text-center text-gray-400 py-10">
-                        No reports found nearby.
+                {sorted.length === 0 && (
+                    <div className="text-center text-gray-400 py-12 flex flex-col items-center gap-2">
+                        <MapPin className="w-8 h-8 opacity-30" />
+                        <p className="text-sm">No reports found. Be the first!</p>
                     </div>
                 )}
             </div>
@@ -43,36 +68,23 @@ export default function NearbyFeed({ reports, onSelectReport, currentUserId }: N
 }
 
 function FeedItem({ report, onClick }: { report: Report; onClick: () => void }) {
-    const [votes, setVotes] = useState(0);
-
-    // Fetch initial votes (This is n+1 fetching, bad for scale but fine for Hackathon MVP)
-    useEffect(() => {
-        fetch(`/api/reports/${report.id}/upvote`)
-            .then(res => res.json())
-            .then(data => setVotes(data.count || 0));
-    }, [report.id]);
-
-    const getCategoryColor = (category: string) => {
-        switch (category) {
-            case 'POTHOLE': return 'bg-red-100 text-red-700 border-red-200';
-            case 'TRASH': return 'bg-yellow-100 text-yellow-700 border-yellow-200';
-            case 'HAZARD': return 'bg-orange-100 text-orange-700 border-orange-200';
-            default: return 'bg-blue-100 text-blue-700 border-blue-200';
-        }
-    };
+    // vote_count is now inline from the API — no individual fetching!
+    const votes = report.vote_count ?? 0;
+    const isHighPriority = (report.priority_score ?? 0) > 20;
 
     return (
         <div
             onClick={onClick}
-            className="border dark:border-gray-800 rounded-xl p-4 flex gap-4 hover:border-black dark:hover:border-gray-500 cursor-pointer transition-colors bg-white dark:bg-gray-900 shadow-sm"
+            className={`border dark:border-gray-800 rounded-2xl p-3.5 flex gap-3.5 cursor-pointer transition-all hover:shadow-md hover:-translate-y-0.5 ${isHighPriority ? 'border-red-200 bg-red-50/30' : 'bg-white dark:bg-gray-900 hover:border-gray-300'}`}
         >
             {/* Thumbnail */}
-            <div className="w-20 h-20 bg-gray-100 dark:bg-gray-800 rounded-lg flex-shrink-0 overflow-hidden">
+            <div className="w-16 h-16 bg-gray-100 dark:bg-gray-800 rounded-xl flex-shrink-0 overflow-hidden">
                 {report.photo_url ? (
+                    // eslint-disable-next-line @next/next/no-img-element
                     <img src={report.photo_url} alt="Report" className="w-full h-full object-cover" />
                 ) : (
-                    <div className="w-full h-full flex items-center justify-center text-gray-300">
-                        <MapPin className="w-6 h-6" />
+                    <div className="w-full h-full flex items-center justify-center text-xl">
+                        {CAT_EMOJI[report.category] || '📍'}
                     </div>
                 )}
             </div>
@@ -84,19 +96,26 @@ function FeedItem({ report, onClick }: { report: Report; onClick: () => void }) 
                         {report.category}
                     </span>
                     <span className="text-xs text-gray-400">
-                        {new Date(report.created_at).toLocaleDateString()}
+                        {new Date(report.created_at).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
                     </span>
                 </div>
-                <p className="text-sm font-medium text-gray-600 dark:text-gray-300 line-clamp-2 mb-2">
-                    {report.description}
+
+                <p className="text-sm text-gray-700 dark:text-gray-200 line-clamp-2 mb-2 leading-snug">
+                    {report.description || <span className="italic text-gray-400">No description provided</span>}
                 </p>
 
-                <div className="flex items-center gap-4 text-sm text-gray-500">
-                    <div className="flex items-center gap-1">
-                        <ChevronUp className="w-4 h-4 text-green-600" />
-                        <span className="font-bold text-gray-800 dark:text-gray-200">{votes}</span>
+                <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-1 text-gray-600 dark:text-gray-400">
+                        <ChevronUp className="w-4 h-4 text-blue-500" />
+                        <span className="text-xs font-bold">{votes}</span>
                     </div>
-                    <span className="text-xs font-semibold">
+                    {isHighPriority && (
+                        <div className="flex items-center gap-1 text-red-500 text-xs font-semibold">
+                            <Flame className="w-3.5 h-3.5" />
+                            High Priority
+                        </div>
+                    )}
+                    <span className={`text-xs font-semibold ml-auto px-2 py-0.5 rounded-full ${report.status === 'RESOLVED' ? 'bg-green-100 text-green-700' : report.status === 'IN_PROGRESS' ? 'bg-yellow-100 text-yellow-700' : 'bg-red-100 text-red-700'}`}>
                         {report.status === 'IN_PROGRESS' ? 'PENDING' : report.status}
                     </span>
                 </div>
