@@ -1,10 +1,18 @@
 import { NextResponse } from 'next/server';
 import { db } from '@/lib/db';
+import { createClient } from '@/utils/supabase/server';
 
 export const dynamic = 'force-dynamic';
 
 export async function GET() {
     try {
+        const supabase = await createClient();
+        const { data: { user }, error: authError } = await supabase.auth.getUser();
+
+        if (authError || !user) {
+            return NextResponse.json({ error: 'Unauthorized: Admin access required.' }, { status: 401 });
+        }
+
         // Overall summary counts
         const [summaryRows] = await db.execute(`
             SELECT
