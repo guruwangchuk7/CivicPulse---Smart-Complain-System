@@ -1,14 +1,15 @@
 import { NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { createClient } from '@/utils/supabase/server';
+import { isAdmin } from '@/lib/admin';
 
 export async function PATCH(request: Request, { params }: { params: Promise<{ id: string }> }) {
     try {
         const supabase = await createClient();
         const { data: { user }, error: authError } = await supabase.auth.getUser();
 
-        if (authError || !user) {
-            return NextResponse.json({ error: 'Unauthorized: Invalid or missing token.' }, { status: 401 });
+        if (authError || !user || !isAdmin(user.email)) {
+            return NextResponse.json({ error: 'Unauthorized: Admin access required.' }, { status: 401 });
         }
 
         const { id: reportId } = await params;

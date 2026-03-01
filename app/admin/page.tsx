@@ -13,6 +13,7 @@ import ReportDetailDrawer from '@/components/ReportDetailDrawer';
 import { getOrCreateUserId } from '@/lib/user';
 import useSWR from 'swr';
 import { createClient } from '@/utils/supabase/client';
+import { isAdmin } from '@/lib/admin';
 
 const fetcher = (url: string) => fetch(url).then(res => res.json());
 
@@ -82,7 +83,7 @@ export default function AdminDashboard() {
             const supabase = createClient();
             const { data: { user }, error } = await supabase.auth.getUser();
 
-            if (error || !user) {
+            if (error || !user || !isAdmin(user.email)) {
                 toast.error('Unauthorized: Admin access required.');
                 router.push('/');
             }
@@ -287,7 +288,7 @@ export default function AdminDashboard() {
                             <div className="bg-white rounded-2xl border border-gray-200 p-6">
                                 <h3 className="font-bold text-gray-900 mb-4">📦 By Category</h3>
                                 <div className="space-y-3">
-                                    {analytics?.by_category.map(item => {
+                                    {analytics?.by_category?.map(item => {
                                         const pct = Math.round((item.count / Math.max(analytics.total, 1)) * 100);
                                         return (
                                             <div key={item.category}>
@@ -315,7 +316,7 @@ export default function AdminDashboard() {
                                     <Building2 className="w-4 h-4 inline mr-1" /> By Department
                                 </h3>
                                 <div className="space-y-3">
-                                    {analytics?.by_department.map(dept => (
+                                    {analytics?.by_department?.map(dept => (
                                         <div key={dept.department} className="flex items-center justify-between p-3 rounded-xl bg-gray-50">
                                             <div>
                                                 <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${DEPT_COLORS[dept.department] || 'bg-gray-100 text-gray-700'}`}>

@@ -1,0 +1,9 @@
+export const ADMIN_EMAILS = [
+    'guruwangchuk1234@gmail.com',
+    'admin@civicpulse.com' // Keeping the default one too
+];
+
+export function isAdmin(email?: string | null): boolean {
+    if (!email) return false;
+    return ADMIN_EMAILS.includes(email.toLowerCase());
+}

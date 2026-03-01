@@ -288,7 +288,7 @@ export default function LandingPage() {
                   <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer" className="p-2 rounded-full bg-blue-600/20 text-blue-400 hover:bg-blue-600/40 transition-colors">
                     <Linkedin className="w-5 h-5" />
                   </a>
-                  <a href="mailto:guru@example.com" className="p-2 rounded-full bg-white/10 text-white hover:bg-white/20 transition-colors">
+                  <a href="mailto:guruwangchuk1234@gmail.com" className="p-2 rounded-full bg-white/10 text-white hover:bg-white/20 transition-colors">
                     <Mail className="w-5 h-5" />
                   </a>
                 </div>
