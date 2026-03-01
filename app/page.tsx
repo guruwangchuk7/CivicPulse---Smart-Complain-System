@@ -25,8 +25,10 @@ export default function LandingPage() {
 
             {/* Desktop Links */}
             <div className="hidden md:flex items-center gap-6">
-              <a href="#features" className="text-sm font-medium text-gray-600 hover:text-blue-600 transition-colors">Features</a>
-              <a href="#developer" className="text-sm font-medium text-gray-600 hover:text-blue-600 transition-colors">Developer</a>
+              <a href="#about" className="text-sm font-medium text-gray-600 hover:text-blue-600 transition-colors">About</a>
+              <a href="#services" className="text-sm font-medium text-gray-600 hover:text-blue-600 transition-colors">Services</a>
+              <a href="#blog" className="text-sm font-medium text-gray-600 hover:text-blue-600 transition-colors">Blog</a>
+              <a href="#contact" className="text-sm font-medium text-gray-600 hover:text-blue-600 transition-colors">Contact</a>
 
               <div className="h-6 w-px bg-gray-200 mx-2" />
 
@@ -57,8 +59,10 @@ export default function LandingPage() {
         {/* Mobile Menu */}
         {isMenuOpen && (
           <div className="md:hidden bg-white border-b border-gray-100 px-6 py-4 space-y-4 shadow-lg absolute w-full">
-            <a href="#features" className="block text-base font-medium text-gray-600 hover:text-blue-600" onClick={() => setIsMenuOpen(false)}>Features</a>
-            <a href="#developer" className="block text-base font-medium text-gray-600 hover:text-blue-600" onClick={() => setIsMenuOpen(false)}>Developer</a>
+            <a href="#about" className="block text-base font-medium text-gray-600 hover:text-blue-600" onClick={() => setIsMenuOpen(false)}>About</a>
+            <a href="#services" className="block text-base font-medium text-gray-600 hover:text-blue-600" onClick={() => setIsMenuOpen(false)}>Services</a>
+            <a href="#blog" className="block text-base font-medium text-gray-600 hover:text-blue-600" onClick={() => setIsMenuOpen(false)}>Blog</a>
+            <a href="#contact" className="block text-base font-medium text-gray-600 hover:text-blue-600" onClick={() => setIsMenuOpen(false)}>Contact</a>
             <button
               onClick={() => { setIsMenuOpen(false); setIsAdminModalOpen(true); }}
               className="block text-base font-medium text-gray-600 hover:text-black w-full text-left"
@@ -74,7 +78,7 @@ export default function LandingPage() {
 
       <AdminLoginModal isOpen={isAdminModalOpen} onClose={() => setIsAdminModalOpen(false)} />
 
-      {/* Hero Section */}
+      {/* Foundation: Hero Section */}
       <header className="relative isolate px-6 pt-32 lg:px-8 pb-16 md:pb-32">
         <div className="absolute inset-x-0 -top-40 -z-10 transform-gpu overflow-hidden blur-3xl sm:-top-80">
           <div className="relative left-[calc(50%-11rem)] aspect-[1155/678] w-[36.125rem] -translate-x-1/2 rotate-[30deg] bg-gradient-to-tr from-[#ff80b5] to-[#9089fc] opacity-30 sm:left-[calc(50%-30rem)] sm:w-[72.1875rem]" style={{ clipPath: 'polygon(74.1% 44.1%, 100% 61.6%, 97.5% 26.9%, 85.5% 0.1%, 80.7% 2%, 72.5% 32.5%, 60.2% 62.4%, 52.4% 68.1%, 47.5% 58.3%, 45.2% 34.5%, 27.5% 76.7%, 0.1% 64.9%, 17.9% 100%, 27.6% 76.8%, 76.1% 97.7%, 74.1% 44.1%)' }} />
@@ -96,15 +100,30 @@ export default function LandingPage() {
             >
               Start Reporting <ArrowRight className="w-4 h-4" />
             </Link>
-            <a href="#features" className="text-sm font-semibold leading-6 text-gray-900 group flex items-center gap-1">
+            <a href="#about" className="text-sm font-semibold leading-6 text-gray-900 group flex items-center gap-1">
               Learn more <span aria-hidden="true" className="group-hover:translate-x-1 transition-transform">→</span>
             </a>
           </div>
         </div>
       </header>
 
-      {/* Feature Section (Benefits) */}
-      <div id="features" className="mx-auto max-w-7xl px-6 lg:px-8 py-24 sm:py-32">
+      {/* Guided Structure: About Us */}
+      <section id="about" className="py-24 bg-white">
+        <div className="mx-auto max-w-7xl px-6 lg:px-8">
+          <div className="mx-auto max-w-2xl lg:text-center">
+            <h2 className="text-base font-semibold leading-7 text-blue-600 uppercase tracking-wide">Our Mission</h2>
+            <p className="mt-2 text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">
+              Your website isn't a brochure, <br />it's your best salesperson.
+            </p>
+            <p className="mt-6 text-lg leading-8 text-gray-600">
+              At CivicPulse, we believe in websites that perform. We don't just explain; we convert community needs into real-world action. Our platform is built to advocate for your neighborhood 24/7.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      {/* Guided Structure: Services */}
+      <div id="services" className="mx-auto max-w-7xl px-6 lg:px-8 py-24 sm:py-32 bg-gray-50 rounded-3xl mb-24">
         <div className="mx-auto max-w-2xl lg:text-center">
           <h2 className="text-base font-semibold leading-7 text-blue-600">Why CivicPulse?</h2>
           <p className="mt-2 text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">
@@ -239,10 +258,11 @@ export default function LandingPage() {
         </div>
       </div>
 
-      {/* Developer Section */}
+      {/* Trust Builders: Meet the Developer */}
       <div id="developer" className="bg-gray-900 py-24 sm:py-32">
         <div className="mx-auto max-w-7xl px-6 lg:px-8">
           <div className="mx-auto max-w-2xl text-center">
+            <p className="text-base font-semibold leading-7 text-blue-400 uppercase tracking-wide">Social Proof</p>
             <h2 className="text-3xl font-bold tracking-tight text-white sm:text-4xl">Meet the Developer</h2>
             <p className="mt-4 text-lg leading-8 text-gray-400">
               Built with passion by Guru Wangchuk.
@@ -274,8 +294,34 @@ export default function LandingPage() {
         </div>
       </div>
 
-      {/* Final Call to Action */}
-      <div className="bg-white">
+      {/* Content That Converts: Blog Posts */}
+      <section id="blog" className="py-24 bg-gray-50 overflow-hidden">
+        <div className="mx-auto max-w-7xl px-6 lg:px-8">
+          <div className="mx-auto max-w-2xl lg:text-center mb-16">
+            <h2 className="text-base font-semibold leading-7 text-blue-600 uppercase tracking-wide">Insights</h2>
+            <p className="mt-2 text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">Latest from the Community</p>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {[
+              { title: 'Effective Reporting Tips', desc: 'How to get your community issues resolved 40% faster with detailed photos.' },
+              { title: 'The Power of Upvoting', desc: 'Why collective action is the key to prioritized urban maintenance.' },
+              { title: 'Community Spotlight', desc: 'Meet the residents who are transforming their wards one tap at a time.' }
+            ].map((post, i) => (
+              <div key={i} className="bg-white rounded-2xl p-8 shadow-sm ring-1 ring-gray-200 hover:shadow-md transition-shadow">
+                <div className="h-40 bg-gray-100 rounded-xl mb-6 flex items-center justify-center text-gray-400 font-bold">Image Placeholder</div>
+                <h4 className="text-xl font-bold text-gray-900 mb-3">{post.title}</h4>
+                <p className="text-base text-gray-600 leading-relaxed">{post.desc}</p>
+                <div className="mt-6 flex items-center text-blue-600 text-sm font-bold cursor-pointer hover:translate-x-1 transition-transform">
+                  Read Section <ArrowRight className="ml-1 w-4 h-4" />
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Content That Converts: Secondary CTA */}
+      <div className="bg-white relative isolate">
         <div className="px-6 py-24 sm:px-6 sm:py-32 lg:px-8">
           <div className="mx-auto max-w-2xl text-center">
             <h2 className="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">
@@ -283,8 +329,8 @@ export default function LandingPage() {
               <br />
               Start reporting today.
             </h2>
-            <p className="mx-auto mt-6 max-w-xl text-lg leading-8 text-gray-600">
-              Join thousands of other citizens who are taking pride in their neighborhoods. It takes less than 30 seconds.
+            <p className="mx-auto mt-6 max-w-xl text-lg leading-8 text-gray-600 font-medium">
+              Join thousands of other citizens who are taking pride in their neighborhoods. Your website isn't a brochure—it's your best salesperson for a better city.
             </p>
             <div className="mt-10 flex items-center justify-center gap-x-6">
               <Link
@@ -297,6 +343,102 @@ export default function LandingPage() {
           </div>
         </div>
       </div>
+
+      {/* Content That Converts: Contact Section */}
+      <section id="contact" className="py-24 bg-gray-900 text-white">
+        <div className="mx-auto max-w-7xl px-6 lg:px-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-16 items-start">
+            <div>
+              <h2 className="text-4xl font-bold">Get in Touch</h2>
+              <p className="mt-6 text-lg text-gray-300">
+                Have questions about how CivicPulse can transform your community? We're here to help you advocate for a better tomorrow.
+              </p>
+              <div className="mt-10 space-y-6">
+                <div className="flex items-center gap-4 text-gray-300">
+                  <div className="w-10 h-10 bg-blue-600/20 rounded-lg flex items-center justify-center text-blue-400">
+                    <Mail className="w-5 h-5" />
+                  </div>
+                  <span className="font-medium">support@civicpulse.org</span>
+                </div>
+              </div>
+            </div>
+            <div className="bg-white/5 backdrop-blur-sm p-8 rounded-3xl border border-white/10 shadow-2xl">
+              <form className="space-y-4 shadow-none">
+                <input type="text" placeholder="Full Name" className="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all" />
+                <input type="email" placeholder="Email Address" className="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all" />
+                <textarea placeholder="How can we help?" className="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all" rows={4}></textarea>
+                <button className="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-4 rounded-xl shadow-lg transition-all active:scale-95">
+                  Send Message
+                </button>
+              </form>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Footer */}
+      <footer className="bg-white border-t border-gray-100 pt-16 pb-8">
+        <div className="mx-auto max-w-7xl px-6 lg:px-8">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-12">
+            {/* Brand */}
+            <div className="col-span-1 md:col-span-1">
+              <div className="flex items-center gap-2 mb-6">
+                <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center text-white font-bold text-xl shadow-lg">C</div>
+                <span className="text-xl font-bold tracking-tight text-gray-900">CivicPulse</span>
+              </div>
+              <p className="text-sm text-gray-500 leading-relaxed font-medium">
+                Empowering citizens to build better communities through real-time reporting and collective action.
+              </p>
+            </div>
+
+            {/* Platform */}
+            <div>
+              <h4 className="text-sm font-bold text-gray-900 uppercase tracking-wider mb-6">Platform</h4>
+              <ul className="space-y-4">
+                <li><Link href="/map" className="text-sm text-gray-600 hover:text-blue-600 transition-colors">Live Map</Link></li>
+                <li><Link href="/leaderboard" className="text-sm text-gray-600 hover:text-blue-600 transition-colors">Leaderboard</Link></li>
+                <li><button onClick={() => setIsAdminModalOpen(true)} className="text-sm text-gray-600 hover:text-blue-600 transition-colors">Admin Dashboard</button></li>
+              </ul>
+            </div>
+
+            {/* Company */}
+            <div>
+              <h4 className="text-sm font-bold text-gray-900 uppercase tracking-wider mb-6">Company</h4>
+              <ul className="space-y-4">
+                <li><a href="#about" className="text-sm text-gray-600 hover:text-blue-600 transition-colors">About Us</a></li>
+                <li><a href="#services" className="text-sm text-gray-600 hover:text-blue-600 transition-colors">Services</a></li>
+                <li><a href="#blog" className="text-sm text-gray-600 hover:text-blue-600 transition-colors">Insights</a></li>
+              </ul>
+            </div>
+
+            {/* Social */}
+            <div>
+              <h4 className="text-sm font-bold text-gray-900 uppercase tracking-wider mb-6">Connect</h4>
+              <div className="flex gap-4">
+                <a href="https://github.com" target="_blank" rel="noopener noreferrer" className="p-2 rounded-lg bg-gray-50 text-gray-600 hover:bg-blue-600 hover:text-white transition-all">
+                  <Github className="w-5 h-5" />
+                </a>
+                <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer" className="p-2 rounded-lg bg-gray-50 text-gray-600 hover:bg-blue-600 hover:text-white transition-all">
+                  <Linkedin className="w-5 h-5" />
+                </a>
+                <a href="mailto:support@civicpulse.org" className="p-2 rounded-lg bg-gray-50 text-gray-600 hover:bg-blue-600 hover:text-white transition-all">
+                  <Mail className="w-5 h-5" />
+                </a>
+              </div>
+            </div>
+          </div>
+
+          <div className="pt-8 border-t border-gray-100 flex flex-col md:flex-row justify-between items-center gap-4">
+            <p className="text-sm text-gray-400 font-medium">
+              © 2024 CivicPulse. All rights reserved.
+            </p>
+            <div className="flex gap-8">
+              <a href="#" className="text-xs text-gray-400 hover:text-gray-900 transition-colors">Privacy Policy</a>
+              <a href="#" className="text-xs text-gray-400 hover:text-gray-900 transition-colors">Terms of Service</a>
+            </div>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 }
