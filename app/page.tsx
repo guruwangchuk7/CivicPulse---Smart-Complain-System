@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { ArrowRight, MapPin, ThumbsUp, Trophy, Github, Linkedin, Mail, Menu, X } from 'lucide-react';
 import AdminLoginModal from '@/components/AdminLoginModal';
 import { useState } from 'react';
+import toast from 'react-hot-toast';
 
 export default function LandingPage() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -113,7 +114,7 @@ export default function LandingPage() {
           <div className="mx-auto max-w-2xl lg:text-center">
             <h2 className="text-base font-semibold leading-7 text-blue-600 uppercase tracking-wide">Our Mission</h2>
             <p className="mt-2 text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">
-              Your website isn't a brochure, <br />it's your best salesperson.
+              Empowering communities through <br />transparent action and collective voice.
             </p>
             <p className="mt-6 text-lg leading-8 text-gray-600">
               At CivicPulse, we believe in websites that perform. We don't just explain; we convert community needs into real-world action. Our platform is built to advocate for your neighborhood 24/7.
@@ -211,13 +212,13 @@ export default function LandingPage() {
             </p>
           </div>
           <div className="mx-auto mt-16 flow-root max-w-2xl sm:mt-20 lg:mx-0 lg:max-w-none">
-            <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
+            <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3 auto-rows-fr">
               {/* Testimonial 1 */}
-              <div className="rounded-2xl bg-white p-8 shadow-sm ring-1 ring-gray-200">
+              <div className="flex flex-col justify-between rounded-2xl bg-white p-8 shadow-sm ring-1 ring-gray-200">
                 <p className="leading-relaxed text-gray-600">
                   "I reported a massive pothole on my morning commute. It was upvoted by 50 people by noon and fixed the next day. Incredible!"
                 </p>
-                <div className="mt-6 flex items-center gap-x-4">
+                <div className="mt-8 flex items-center gap-x-4 border-t border-gray-100 pt-6">
                   <div className="h-10 w-10 rounded-full bg-gray-200 flex items-center justify-center font-bold text-gray-500">SAR</div>
                   <div>
                     <div className="font-semibold text-gray-900">Sarah Jenkins</div>
@@ -227,11 +228,11 @@ export default function LandingPage() {
               </div>
 
               {/* Testimonial 2 */}
-              <div className="rounded-2xl bg-white p-8 shadow-sm ring-1 ring-gray-200">
+              <div className="flex flex-col justify-between rounded-2xl bg-white p-8 shadow-sm ring-1 ring-gray-200">
                 <p className="leading-relaxed text-gray-600">
                   "CivicPulse brings our community together. We're not just complaining; we're actively prioritizing what needs to be fixed first."
                 </p>
-                <div className="mt-6 flex items-center gap-x-4">
+                <div className="mt-8 flex items-center gap-x-4 border-t border-gray-100 pt-6">
                   <div className="h-10 w-10 rounded-full bg-gray-200 flex items-center justify-center font-bold text-gray-500">M</div>
                   <div>
                     <div className="font-semibold text-gray-900">Mike T.</div>
@@ -241,11 +242,11 @@ export default function LandingPage() {
               </div>
 
               {/* Testimonial 3 */}
-              <div className="rounded-2xl bg-white p-8 shadow-sm ring-1 ring-gray-200">
+              <div className="flex flex-col justify-between rounded-2xl bg-white p-8 shadow-sm ring-1 ring-gray-200">
                 <p className="leading-relaxed text-gray-600">
                   "I love the leaderboard! It's a fun way to encourage everyone to keep our streets clean and safe. A true game changer."
                 </p>
-                <div className="mt-6 flex items-center gap-x-4">
+                <div className="mt-8 flex items-center gap-x-4 border-t border-gray-100 pt-6">
                   <div className="h-10 w-10 rounded-full bg-gray-200 flex items-center justify-center font-bold text-gray-500">J</div>
                   <div>
                     <div className="font-semibold text-gray-900">Jessica Wong</div>
@@ -260,35 +261,59 @@ export default function LandingPage() {
 
       {/* Trust Builders: Meet the Developer */}
       <div id="developer" className="bg-gray-900 py-24 sm:py-32">
-        <div className="mx-auto max-w-7xl px-6 lg:px-8">
-          <div className="mx-auto max-w-2xl text-center">
+        <div className="mx-auto max-w-7xl px-6 lg:px-12">
+          <div className="mx-auto max-w-2xl text-center mb-16">
             <p className="text-base font-semibold leading-7 text-blue-400 uppercase tracking-wide">Social Proof</p>
-            <h2 className="text-3xl font-bold tracking-tight text-white sm:text-4xl">Meet the Developer</h2>
+            <h2 className="text-3xl font-bold tracking-tight text-white sm:text-4xl">Meet the Team</h2>
             <p className="mt-4 text-lg leading-8 text-gray-400">
-              Built with passion by Guru Wangchuk.
+              Built with passion and purpose for our community.
             </p>
           </div>
-          <div className="mx-auto mt-16 flex flex-col items-center gap-6">
-            <div className="h-24 w-24 rounded-full bg-gradient-to-r from-blue-500 to-indigo-600 p-[2px]">
-              <div className="h-full w-full rounded-full bg-gray-900 flex items-center justify-center text-3xl font-bold text-white">
-                GW
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-12 lg:gap-24">
+            {/* Lead Developer */}
+            <div className="flex flex-col items-center">
+              <div className="h-24 w-24 rounded-full bg-gradient-to-r from-blue-500 to-indigo-600 p-[2px] mb-6">
+                <div className="h-full w-full rounded-full bg-gray-900 flex items-center justify-center text-3xl font-bold text-white">
+                  GW
+                </div>
+              </div>
+              <div className="text-center">
+                <h3 className="text-xl font-semibold text-white">Guru Wangchuk</h3>
+                <p className="text-sm text-blue-400 mt-1 uppercase tracking-wider font-semibold">Full Stack Engineer</p>
+                <div className="flex gap-4 mt-4 justify-center">
+                  <a href="https://github.com" target="_blank" rel="noopener noreferrer" className="p-2 rounded-full bg-white/10 text-white hover:bg-white/20 transition-colors">
+                    <Github className="w-5 h-5" />
+                  </a>
+                  <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer" className="p-2 rounded-full bg-blue-600/20 text-blue-400 hover:bg-blue-600/40 transition-colors">
+                    <Linkedin className="w-5 h-5" />
+                  </a>
+                  <a href="mailto:guru@example.com" className="p-2 rounded-full bg-white/10 text-white hover:bg-white/20 transition-colors">
+                    <Mail className="w-5 h-5" />
+                  </a>
+                </div>
               </div>
             </div>
-            <div className="text-center">
-              <h3 className="text-xl font-semibold text-white">Guru Wangchuk</h3>
-              <p className="text-sm text-blue-400 mt-1 uppercase tracking-wider font-semibold">Full Stack Engineer</p>
-            </div>
 
-            <div className="flex gap-6 mt-4">
-              <a href="https://github.com" target="_blank" rel="noopener noreferrer" className="p-2 rounded-full bg-white/10 text-white hover:bg-white/20 transition-colors">
-                <Github className="w-6 h-6" />
-              </a>
-              <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer" className="p-2 rounded-full bg-blue-600/20 text-blue-400 hover:bg-blue-600/40 transition-colors">
-                <Linkedin className="w-6 h-6" />
-              </a>
-              <a href="mailto:guru@example.com" className="p-2 rounded-full bg-white/10 text-white hover:bg-white/20 transition-colors">
-                <Mail className="w-6 h-6" />
-              </a>
+            {/* Technical Assistant */}
+            <div className="flex flex-col items-center">
+              <div className="h-24 w-24 rounded-full bg-gradient-to-r from-[#EEEEEE] to-[#929AAB] p-[2px] mb-6">
+                <div className="h-full w-full rounded-full bg-gray-900 flex items-center justify-center text-3xl font-bold text-white">
+                  TD
+                </div>
+              </div>
+              <div className="text-center">
+                <h3 className="text-xl font-semibold text-white">Tshetrim Dema</h3>
+                <p className="text-sm text-blue-400 mt-1 uppercase tracking-wider font-semibold">Technical Assistant</p>
+                <div className="flex gap-4 mt-4 justify-center">
+                  <a href="https://www.linkedin.com/in/tshetrimdema/" target="_blank" rel="noopener noreferrer" className="p-2 rounded-full bg-blue-600/20 text-blue-400 hover:bg-blue-600/40 transition-colors">
+                    <Linkedin className="w-5 h-5" />
+                  </a>
+                  <a href="mailto:tshetrim@example.com" className="p-2 rounded-full bg-white/10 text-white hover:bg-white/20 transition-colors">
+                    <Mail className="w-5 h-5" />
+                  </a>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -430,11 +455,21 @@ export default function LandingPage() {
 
           <div className="pt-8 border-t border-gray-100 flex flex-col md:flex-row justify-between items-center gap-4">
             <p className="text-sm text-gray-400 font-medium">
-              © 2024 CivicPulse. All rights reserved.
+              © 2026 CivicPulse. All rights reserved.
             </p>
-            <div className="flex gap-8">
-              <a href="#" className="text-xs text-gray-400 hover:text-gray-900 transition-colors">Privacy Policy</a>
-              <a href="#" className="text-xs text-gray-400 hover:text-gray-900 transition-colors">Terms of Service</a>
+            <div className="flex gap-4">
+              <Link
+                href="/privacy"
+                className="text-xs font-medium text-gray-500 hover:text-black px-3 py-1.5 rounded-md hover:bg-gray-100 transition-all border border-transparent hover:border-gray-200"
+              >
+                Privacy Policy
+              </Link>
+              <Link
+                href="/terms"
+                className="text-xs font-medium text-gray-500 hover:text-black px-3 py-1.5 rounded-md hover:bg-gray-100 transition-all border border-transparent hover:border-gray-200"
+              >
+                Terms of Service
+              </Link>
             </div>
           </div>
         </div>

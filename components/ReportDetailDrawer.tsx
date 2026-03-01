@@ -3,6 +3,7 @@
 import { useEffect, useState, useRef } from 'react';
 import { X, MapPin, Calendar, ThumbsUp, Share2, MessageSquare, Send, Building2 } from 'lucide-react';
 import { Report, Comment } from '@/types';
+
 import toast from 'react-hot-toast';
 
 interface ReportDetailDrawerProps {
