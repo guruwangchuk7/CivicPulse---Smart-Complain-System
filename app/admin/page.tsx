@@ -1,3 +1,5 @@
+
+
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -50,14 +52,14 @@ function StatCard({
     return (
         <div
             onClick={onClick}
-            className={`rounded-3xl p-6 border ${color} flex flex-col gap-3 transition-all ${onClick ? 'cursor-pointer hover:shadow-lg hover:scale-[1.02]' : ''}`}
+            className={`rounded-2xl p-6 border transition-all duration-300 ${color} flex flex-col gap-3 ${onClick ? 'cursor-pointer hover:shadow-xl hover:-translate-y-1' : ''}`}
         >
-            <div className="flex items-center justify-between opacity-80">
-                <span className="text-sm font-bold uppercase tracking-wider">{label}</span>
-                <span>{icon}</span>
+            <div className="flex items-center justify-between opacity-50">
+                <span className="text-[10px] font-semibold uppercase tracking-wider">{label}</span>
+                <span className="p-2 bg-white/40 rounded-xl">{icon}</span>
             </div>
-            <div className="text-4xl font-black tracking-tight">{value}</div>
-            {sub && <div className="text-xs font-semibold opacity-70 mt-auto pt-2">{sub}</div>}
+            <div className="text-4xl font-normal tracking-tight text-gray-900">{value}</div>
+            {sub && <div className="text-[11px] font-medium text-gray-400 mt-auto pt-2">{sub}</div>}
         </div>
     );
 }
@@ -169,17 +171,17 @@ export default function AdminDashboard() {
         : 0;
 
     return (
-        <div className="min-h-screen bg-gray-50">
+        <div className="min-h-screen bg-[#F7F7F7] text-gray-900 font-sans selection:bg-blue-100">
             {/* Top Header */}
-            <div className="sticky top-0 z-10 bg-white border-b border-gray-200 px-6 py-4">
+            <div className="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-gray-100 px-6 py-4">
                 <div className="max-w-7xl mx-auto flex items-center justify-between">
                     <div className="flex items-center gap-3">
                         <Link href="/map" className="p-2 hover:bg-gray-100 rounded-full transition-colors">
                             <ArrowLeft className="w-5 h-5 text-gray-600" />
                         </Link>
                         <div>
-                            <h1 className="text-xl font-bold text-gray-900">Admin Dashboard</h1>
-                            <p className="text-xs text-gray-500">CivicPulse Command Center</p>
+                            <h1 className="text-xl font-bold text-gray-900 tracking-tight">Admin Dashboard</h1>
+                            <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest">Command Center</p>
                         </div>
                     </div>
                     <div className="flex items-center gap-2">
@@ -208,12 +210,12 @@ export default function AdminDashboard() {
                         <button
                             key={tab}
                             onClick={() => setActiveTab(tab)}
-                            className={`px-5 py-2 rounded-lg text-sm font-semibold capitalize transition-all ${activeTab === tab
-                                ? 'bg-white text-gray-900 shadow-sm'
-                                : 'text-gray-500 hover:text-gray-700'
+                            className={`px-6 py-2 rounded-lg text-xs font-bold uppercase tracking-widest transition-all ${activeTab === tab
+                                ? 'bg-black text-white shadow-xl'
+                                : 'text-gray-400 hover:text-gray-900'
                                 }`}
                         >
-                            {tab === 'analytics' ? '📊 Analytics' : '📋 Reports'}
+                            {tab === 'analytics' ? 'Analytics' : 'Reports'}
                         </button>
                     ))}
                 </div>
@@ -371,13 +373,13 @@ export default function AdminDashboard() {
                                     <button
                                         key={s}
                                         onClick={() => setFilter(s)}
-                                        className={`px-4 py-2 rounded-full text-sm font-semibold transition-all flex items-center gap-2 ${filter === s
-                                            ? 'bg-black text-white shadow-md'
-                                            : 'bg-white text-gray-600 hover:bg-gray-100 border border-gray-200'
+                                        className={`px-5 py-2 rounded-full text-[10px] font-black uppercase tracking-widest transition-all flex items-center gap-2 ${filter === s
+                                            ? 'bg-black text-white shadow-xl scale-105'
+                                            : 'bg-white text-gray-500 hover:bg-gray-50 border border-gray-100'
                                             }`}
                                     >
                                         {label}
-                                        <span className={`text-xs px-1.5 py-0.5 rounded-full ${filter === s ? 'bg-white/20 text-white' : 'bg-gray-100 text-gray-500'}`}>
+                                        <span className={`px-1.5 py-0.5 rounded-md ${filter === s ? 'bg-white/20 text-white' : 'bg-gray-100 text-gray-400'}`}>
                                             {count}
                                         </span>
                                     </button>
@@ -424,12 +426,12 @@ export default function AdminDashboard() {
                             ) : (
                                 <div className="overflow-x-auto">
                                     <table className="w-full text-left text-sm whitespace-nowrap">
-                                        <thead className="bg-gray-50/80 text-gray-500 text-xs font-bold uppercase tracking-wider">
+                                        <thead className="bg-[#F7F7F7] text-gray-400 text-[10px] font-semibold uppercase tracking-wider border-b border-gray-100">
                                             <tr>
-                                                <th className="p-4 w-10">
+                                                <th className="p-6 w-10">
                                                     <input
                                                         type="checkbox"
-                                                        className="w-4 h-4 rounded border-gray-300 text-black focus:ring-black"
+                                                        className="w-4 h-4 rounded border-gray-300 text-black focus:ring-black accent-black"
                                                         checked={filteredReports.length > 0 && selectedRows.size === filteredReports.length}
                                                         onChange={(e) => {
                                                             if (e.target.checked) {
@@ -440,22 +442,22 @@ export default function AdminDashboard() {
                                                         }}
                                                     />
                                                 </th>
-                                                <th className="p-4">Date</th>
-                                                <th className="p-4">Category</th>
-                                                <th className="p-4">Department</th>
-                                                <th className="p-4">Description</th>
-                                                <th className="p-4">Priority</th>
-                                                <th className="p-4">Status</th>
-                                                <th className="p-4 text-right">Update Status</th>
+                                                <th className="p-6">Date</th>
+                                                <th className="p-6">Category</th>
+                                                <th className="p-6">Department</th>
+                                                <th className="p-6">Description</th>
+                                                <th className="p-6">Priority</th>
+                                                <th className="p-6">Status</th>
+                                                <th className="p-6 text-right">Update Status</th>
                                             </tr>
                                         </thead>
-                                        <tbody className="divide-y divide-gray-100">
+                                        <tbody className="divide-y divide-gray-100 bg-white">
                                             {filteredReports.map((report) => {
-                                                const priorityBg = (report.priority_score || 0) > 20 ? 'bg-red-50/50' : '';
+                                                const priorityBg = (report.priority_score || 0) > 20 ? 'bg-red-50/30' : '';
 
                                                 return (
                                                     <tr key={report.id} className={`hover:bg-gray-50 transition-colors group cursor-pointer ${priorityBg}`}>
-                                                        <td className="p-4" onClick={(e) => e.stopPropagation()}>
+                                                        <td className="p-6" onClick={(e) => e.stopPropagation()}>
                                                             <input
                                                                 type="checkbox"
                                                                 className="w-4 h-4 rounded border-gray-300 text-black focus:ring-black cursor-pointer"
@@ -468,44 +470,45 @@ export default function AdminDashboard() {
                                                                 }}
                                                             />
                                                         </td>
-                                                        <td className="p-4 text-gray-500 font-medium" onClick={() => setDrawerReport(report)}>
+                                                        <td className="p-6 text-gray-400 font-medium" onClick={() => setDrawerReport(report)}>
                                                             {new Date(report.created_at).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
                                                         </td>
-                                                        <td className="p-4" onClick={() => setDrawerReport(report)}>
-                                                            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-gray-100 text-gray-800 border border-gray-200">
+                                                        <td className="p-6" onClick={() => setDrawerReport(report)}>
+                                                            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-md text-[11px] font-semibold bg-gray-50 text-gray-600 border border-gray-100">
                                                                 <span>{CAT_EMOJI[report.category] || '📍'}</span>
                                                                 {report.category}
                                                             </span>
                                                         </td>
-                                                        <td className="p-4" onClick={() => setDrawerReport(report)}>
-                                                            <span className={`text-xs font-bold px-3 py-1 rounded-full ${DEPT_COLORS[report.department || 'GENERAL']}`}>
+                                                        <td className="p-6" onClick={() => setDrawerReport(report)}>
+                                                            <span className={`text-[10px] font-bold px-3 py-1 rounded-md border ${DEPT_COLORS[report.department || 'GENERAL']}`}>
                                                                 {report.department || 'GENERAL'}
                                                             </span>
                                                         </td>
-                                                        <td className="p-4 max-w-xs text-gray-700" onClick={() => setDrawerReport(report)}>
-                                                            <div className="truncate group-hover:text-black font-medium transition-colors">
-                                                                {report.description || <span className="italic text-gray-400">No description provided</span>}
+                                                        <td className="p-6 max-w-xs text-gray-500 font-medium" onClick={() => setDrawerReport(report)}>
+                                                            <div className="truncate group-hover:text-black transition-colors">
+                                                                {report.description || <span className="italic text-gray-300">No description provided</span>}
                                                             </div>
                                                         </td>
-                                                        <td className="p-4" onClick={() => setDrawerReport(report)}>
+                                                        <td className="p-6" onClick={() => setDrawerReport(report)}>
                                                             <div className="flex items-center gap-2">
                                                                 <div
-                                                                    className={`w-2 h-2 rounded-full ${(report.priority_score || 0) > 20 ? 'bg-red-500 animate-pulse' : (report.priority_score || 0) > 10 ? 'bg-yellow-500' : 'bg-green-500'}`}
+                                                                    className={`w-1.5 h-1.5 rounded-full ${(report.priority_score || 0) > 20 ? 'bg-red-500 animate-pulse' : (report.priority_score || 0) > 10 ? 'bg-yellow-500' : 'bg-green-500'}`}
                                                                 />
-                                                                <span className="text-sm font-bold text-gray-700">{report.priority_score ?? 0}</span>
-                                                                <span className="text-xs text-gray-400 bg-gray-100 px-1.5 rounded">👍 {report.vote_count ?? 0}</span>
+                                                                <span className="text-sm font-semibold text-gray-700">{Math.round(report.priority_score || 0)}</span>
+                                                                <span className="text-[10px] text-gray-400 font-bold">👍 {report.vote_count ?? 0}</span>
                                                             </div>
                                                         </td>
-                                                        <td className="p-4" onClick={() => setDrawerReport(report)}>
-                                                            <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-black tracking-wide border ${report.status === 'OPEN' ? 'bg-red-50 text-red-700 border-red-200' : report.status === 'IN_PROGRESS' ? 'bg-amber-50 text-amber-700 border-amber-200' : 'bg-green-50 text-green-700 border-green-200'}`}>
+                                                        <td className="p-6" onClick={() => setDrawerReport(report)}>
+                                                            <div className={`inline-flex items-center gap-2 px-3 py-1 rounded-md text-[10px] font-bold tracking-wider uppercase border ${report.status === 'OPEN' ? 'bg-red-50 text-red-600 border-red-100' : report.status === 'IN_PROGRESS' ? 'bg-amber-50 text-amber-600 border-amber-100' : 'bg-green-50 text-green-600 border-green-100'}`}>
+                                                                <span className={`w-1 h-1 rounded-full ${report.status === 'OPEN' ? 'bg-red-500' : report.status === 'IN_PROGRESS' ? 'bg-amber-500' : 'bg-green-500'}`} />
                                                                 {report.status === 'IN_PROGRESS' ? 'PENDING' : report.status}
-                                                            </span>
+                                                            </div>
                                                         </td>
-                                                        <td className="p-4 text-right" onClick={(e) => e.stopPropagation()}>
+                                                        <td className="p-6 text-right" onClick={(e) => e.stopPropagation()}>
                                                             <select
                                                                 value={report.status}
                                                                 onChange={(e) => updateStatus(report.id, e.target.value as any)}
-                                                                className="text-xs font-bold bg-white border border-gray-200 text-gray-700 rounded-lg px-2 py-1.5 outline-none cursor-pointer hover:border-gray-300 focus:ring-2 focus:ring-black/5"
+                                                                className="text-[10px] font-bold uppercase tracking-wide bg-gray-50 border border-gray-100 text-gray-500 rounded-md px-3 py-2 outline-none cursor-pointer hover:bg-white transition-all"
                                                             >
                                                                 <option value="OPEN">Open</option>
                                                                 <option value="IN_PROGRESS">Pending</option>

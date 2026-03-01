@@ -46,27 +46,36 @@ export async function initDB() {
         );
     `;
 
-    // Migration: add new columns to existing reports table if they don't exist
-    const migrateReportsTable = `
-        ALTER TABLE reports
-            ADD COLUMN IF NOT EXISTS department ENUM('ROADS', 'SANITATION', 'EMERGENCY', 'GENERAL') DEFAULT 'GENERAL',
-            ADD COLUMN IF NOT EXISTS priority_score INT DEFAULT 0,
-            ADD COLUMN IF NOT EXISTS assigned_at TIMESTAMP NULL,
-            ADD COLUMN IF NOT EXISTS resolved_at TIMESTAMP NULL;
-    `;
-
     try {
         const connection = await db.getConnection();
         await connection.query(createReportsTable);
         await connection.query(createVotesTable);
         await connection.query(createCommentsTable);
-        // Run migration (safe, uses IF NOT EXISTS / IF EXISTS)
-        try {
-            await connection.query(migrateReportsTable);
-        } catch {
-            // Might fail on MySQL < 8 which doesn't support ADD COLUMN IF NOT EXISTS — ignore
+
+        // Robust Migration for all MySQL versions (Pre-8.0 compat)
+        const [columns] = await connection.query(`
+            SELECT COLUMN_NAME 
+            FROM information_schema.columns 
+            WHERE table_name = 'reports' 
+            AND table_schema = DATABASE()
+        `) as [any[], any];
+
+        const existingColumns = new Set(columns.map(c => c.COLUMN_NAME));
+
+        if (!existingColumns.has('department')) {
+            await connection.query("ALTER TABLE reports ADD COLUMN department ENUM('ROADS', 'SANITATION', 'EMERGENCY', 'GENERAL') DEFAULT 'GENERAL'");
         }
-        console.log('Tables initialized successfully');
+        if (!existingColumns.has('priority_score')) {
+            await connection.query("ALTER TABLE reports ADD COLUMN priority_score INT DEFAULT 0");
+        }
+        if (!existingColumns.has('assigned_at')) {
+            await connection.query("ALTER TABLE reports ADD COLUMN assigned_at TIMESTAMP NULL");
+        }
+        if (!existingColumns.has('resolved_at')) {
+            await connection.query("ALTER TABLE reports ADD COLUMN resolved_at TIMESTAMP NULL");
+        }
+
+        console.log('Tables and migrations checked successfully');
         connection.release();
     } catch (error) {
         console.error('Error initializing tables:', error);
