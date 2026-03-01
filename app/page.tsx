@@ -15,7 +15,7 @@ export default function LandingPage() {
 
       {/* Interactive Navbar */}
       <nav className="fixed inset-x-0 top-0 z-50 bg-white/80 backdrop-blur-md border-b border-gray-100 transition-all duration-300">
-        <div className="mx-auto max-w-7xl px-6 lg:px-8">
+        <div className="w-full px-6 lg:px-12">
           <div className="flex items-center justify-between h-16">
             {/* Logo */}
             <div className="flex items-center gap-2 cursor-pointer hover:opacity-80 transition-opacity" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
@@ -378,7 +378,7 @@ export default function LandingPage() {
 
       {/* Footer */}
       <footer className="bg-white border-t border-gray-100 pt-16 pb-8">
-        <div className="mx-auto max-w-7xl px-6 lg:px-8">
+        <div className="w-full px-6 lg:px-12">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-12">
             {/* Brand */}
             <div className="col-span-1 md:col-span-1">
