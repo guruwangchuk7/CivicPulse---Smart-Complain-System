@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { initDB } from '@/lib/init-db';
 import { v4 as uuidv4 } from 'uuid';
+import { anchorReportOnChain } from '@/lib/blockchain';
 
 let dbInitialized = false;
 
@@ -55,6 +56,12 @@ export async function POST(request: Request) {
         `;
 
         await db.execute(query, [id, userId, category, description || '', lat, lng, photoUrl || null, department]);
+
+        // [WEB2.5] Fire and forget: Anchor the report to the blockchain in the background 
+        // This ensures the frontend doesn't lag waiting for the block confirmation.
+        anchorReportOnChain(id, { category, lat, lng }).catch((err) => {
+            console.error('Failed to anchor to blockchain:', err);
+        });
 
         const [rows] = await db.execute('SELECT * FROM reports WHERE id = ?', [id]);
         const report = (rows as any)[0];

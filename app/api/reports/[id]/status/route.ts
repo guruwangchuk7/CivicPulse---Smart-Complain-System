@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { createClient } from '@/utils/supabase/server';
 import { isAdmin } from '@/lib/admin';
+import { markReportResolvedOnChain } from '@/lib/blockchain';
 
 export async function PATCH(request: Request, { params }: { params: Promise<{ id: string }> }) {
     try {
@@ -14,7 +15,7 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
 
         const { id: reportId } = await params;
         const body = await request.json();
-        const { status } = body;
+        const { status, resolutionHash } = body;
 
         if (!['OPEN', 'IN_PROGRESS', 'RESOLVED'].includes(status)) {
             return NextResponse.json({ error: 'Invalid status' }, { status: 400 });
@@ -37,6 +38,16 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
         queryParams.push(reportId);
 
         await db.execute(query, queryParams);
+
+        // [WEB2.5] Update Reality on the Blockchain
+        // If the municipality marks a pothole as "Resolved", we must prove they actually clicked the button!
+        if (status === 'RESOLVED') {
+            // In a full production app, this hash would be generated on the frontend from the uploaded repair photo
+            const finalHash = resolutionHash || "0x0000000000000000000000000000000000000000000000000000000000000000";
+            markReportResolvedOnChain(reportId, finalHash).catch(err => {
+                console.error("Failed to mark resolved on blockchain:", err);
+            });
+        }
 
         return NextResponse.json({ message: 'Status updated', status });
     } catch (error: any) {

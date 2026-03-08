@@ -3,6 +3,8 @@
 import { useEffect, useState, useRef } from 'react';
 import { X, MapPin, Calendar, ThumbsUp, Share2, MessageSquare, Send, Building2 } from 'lucide-react';
 import { Report, Comment } from '@/types';
+import { createPublicClient, http, parseAbi } from 'viem';
+import { hardhat } from 'viem/chains';
 
 import toast from 'react-hot-toast';
 
@@ -28,6 +30,10 @@ export default function ReportDetailDrawer({ isOpen, onClose, report, currentUse
     const [commentText, setCommentText] = useState('');
     const [isSubmittingComment, setIsSubmittingComment] = useState(false);
     const [activeTab, setActiveTab] = useState<'details' | 'comments'>('details');
+    const [isOnChain, setIsOnChain] = useState<boolean>(false);
+    const [txHash, setTxHash] = useState<string | null>(null);
+    const [isResolvedOnChain, setIsResolvedOnChain] = useState<boolean>(false);
+    const [resolutionHash, setResolutionHash] = useState<string | null>(null);
     const commentEndRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
@@ -53,6 +59,40 @@ export default function ReportDetailDrawer({ isOpen, onClose, report, currentUse
             .then(res => res.json())
             .then(data => Array.isArray(data) && setComments(data))
             .catch(console.error);
+
+        // [WEB2.5] Check Blockchain Status
+        const checkBlockchain = async () => {
+            try {
+                const publicClient = createPublicClient({ chain: hardhat, transport: http() });
+                const abi = parseAbi(["function reports(string memory _id) public view returns (string internalId, address reporter, string metadataHash, uint256 timestamp, bool isResolved, string resolutionHash)"]);
+                // Note: Hardcoded to the local address for demo purposes. 
+                // Would normally be an environment variable.
+                const data = await publicClient.readContract({
+                    address: "0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0",
+                    abi,
+                    functionName: 'reports',
+                    args: [report.id]
+                }) as any;
+                
+                // If timestamp > 0, it means the report exists on-chain
+                if (data && data[3] > BigInt(0)) {
+                    setIsOnChain(true);
+                    setTxHash(data[2]); // Using the metadata hash as a visual proof for now
+                    setIsResolvedOnChain(data[4] === true);
+                    setResolutionHash(data[5]);
+                } else {
+                    setIsOnChain(false);
+                    setTxHash(null);
+                    setIsResolvedOnChain(false);
+                    setResolutionHash(null);
+                }
+            } catch (err) {
+                console.error("Not deployed or RPC down", err);
+                setIsOnChain(false);
+            }
+        };
+        
+        checkBlockchain();
     }, [report]);
 
     useEffect(() => {
@@ -160,6 +200,17 @@ export default function ReportDetailDrawer({ isOpen, onClose, report, currentUse
                                     🔥 High Priority
                                 </span>
                             )}
+                            {isOnChain && (
+                                <a 
+                                    href={`https://sepolia.basescan.org/tx/${txHash}`} // Target network scanner explorer
+                                    target="_blank" 
+                                    rel="noreferrer"
+                                    className="text-[10px] font-bold px-2.5 py-1 rounded-full bg-purple-100 text-purple-700 border border-purple-200 flex items-center gap-1 hover:bg-purple-200 transition-colors"
+                                    title="This report is cryptographically anchored to the blockchain."
+                                >
+                                    🔗 On-Chain Verified
+                                </a>
+                            )}
                         </div>
                         <h2 className="text-xl font-extrabold text-gray-900">
                             {report.category === 'POTHOLE' ? 'Pothole Reported' :
@@ -208,6 +259,22 @@ export default function ReportDetailDrawer({ isOpen, onClose, report, currentUse
                             ) : (
                                 <div className="w-full h-36 bg-gradient-to-br from-gray-100 to-gray-50 flex items-center justify-center text-gray-300">
                                     <MapPin className="w-8 h-8" />
+                                </div>
+                            )}
+
+                            {/* Decentralized Proof Banner */}
+                            {isResolvedOnChain && (
+                                <div className="mx-5 mt-5 bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-xl p-4 flex flex-col gap-2">
+                                    <div className="flex items-center gap-2 text-green-800 font-bold text-sm">
+                                        <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
+                                        Repair Verified on Blockchain
+                                    </div>
+                                    <p className="text-xs text-green-700/80 leading-relaxed">
+                                        The municipality has cryptographically signed the completion of this repair. 
+                                    </p>
+                                    <div className="text-[10px] font-mono text-green-800/60 break-all bg-green-100/50 p-2 rounded-lg mt-1 border border-green-200/50">
+                                        Proof Hash: {resolutionHash}
+                                    </div>
                                 </div>
                             )}
 
