@@ -31,6 +31,9 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
         }
 
         const id = uuidv4();
+        // Ensure user exists in users table (foreign key constraint)
+        await db.execute('INSERT IGNORE INTO users (id, is_anonymous) VALUES (?, 1)', [userId]);
+
         await db.execute(
             'INSERT INTO comments (id, report_id, user_id, text) VALUES (?, ?, ?, ?)',
             [id, reportId, userId, text.trim()]

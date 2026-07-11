@@ -12,6 +12,9 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
             return NextResponse.json({ error: 'User ID required' }, { status: 400 });
         }
 
+        // Ensure user exists in users table (foreign key constraint)
+        await db.execute('INSERT IGNORE INTO users (id, is_anonymous) VALUES (?, 1)', [userId]);
+
         // Check if vote already exists
         const [existing] = await db.execute(
             'SELECT id FROM votes WHERE report_id = ? AND user_id = ?',

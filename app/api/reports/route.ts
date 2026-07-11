@@ -49,6 +49,9 @@ export async function POST(request: Request) {
         const id = uuidv4();
         const department = getDepartment(category);
 
+        // Ensure user exists in users table (foreign key constraint)
+        await db.execute('INSERT IGNORE INTO users (id, is_anonymous) VALUES (?, 1)', [userId]);
+
         const query = `
             INSERT INTO reports (id, user_id, category, description, lat, lng, photo_url, department)
             VALUES (?, ?, ?, ?, ?, ?, ?, ?)
