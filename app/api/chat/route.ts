@@ -1,7 +1,18 @@
 import { NextResponse } from 'next/server';
-import { supabase } from '@/lib/supabase';
+import { db } from '@/lib/db';
+import { initDB } from '@/lib/init-db';
+
+let dbInitialized = false;
+
+async function ensureDB() {
+    if (!dbInitialized) {
+        await initDB();
+        dbInitialized = true;
+    }
+}
 
 export async function POST(request: Request) {
+    await ensureDB();
     try {
         const { message, lat, lng } = await request.json();
 
@@ -18,24 +29,31 @@ export async function POST(request: Request) {
 
         if (lowerMsg.includes('trending') || lowerMsg.includes('popular')) {
             // Fetch top voted report nearby
-            const { data } = await supabase
-                .from('reports')
-                .select('category, description')
-                .limit(1);
+            const [rows]: any = await db.query(
+                'SELECT category, description FROM reports ORDER BY priority_score DESC, created_at DESC LIMIT 1'
+            );
 
-            if (data && data.length > 0) {
-                responseText = `The most trending issue nearby is a ${data[0].category.toLowerCase()}: "${data[0].description}". People are really concerned about it!`;
+            if (rows && rows.length > 0) {
+                responseText = `The most trending issue nearby is a ${rows[0].category.toLowerCase()}: "${rows[0].description}". People are really concerned about it!`;
             } else {
                 responseText = "Nothing is trending right now. It's quiet... too quiet.";
             }
         } else if (lowerMsg.includes('pothole')) {
-            const { count } = await supabase.from('reports').select('*', { count: 'exact', head: true }).eq('category', 'POTHOLE');
-            responseText = `There are currently ${count || 0} potholes reported in this area. drive carefully!`;
+            const [rows]: any = await db.query(
+                'SELECT COUNT(*) as count FROM reports WHERE category = ?',
+                ['POTHOLE']
+            );
+            const count = rows[0]?.count || 0;
+            responseText = `There are currently ${count} potholes reported in this area. drive carefully!`;
         } else if (lowerMsg.includes('trash')) {
-            const { count } = await supabase.from('reports').select('*', { count: 'exact', head: true }).eq('category', 'TRASH');
-            responseText = `We have ${count || 0} reports of trash piling up. Let's get it cleaned!`;
+            const [rows]: any = await db.query(
+                'SELECT COUNT(*) as count FROM reports WHERE category = ?',
+                ['TRASH']
+            );
+            const count = rows[0]?.count || 0;
+            responseText = `We have ${count} reports of trash piling up. Let's get it cleaned!`;
         } else if (lowerMsg.includes('hello') || lowerMsg.includes('hi')) {
-            responseText = "Hello citizen! I'm your Civic Assistant. visible. Ask me about issues nearby.";
+            responseText = "Hello citizen! I'm your Civic Assistant. Ask me about issues nearby.";
         }
 
         return NextResponse.json({ reply: responseText });
@@ -45,3 +63,4 @@ export async function POST(request: Request) {
         return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
     }
 }
+

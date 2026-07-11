@@ -13,6 +13,7 @@ interface AdminLoginModalProps {
 
 export default function AdminLoginModal({ isOpen, onClose }: AdminLoginModalProps) {
     const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
     const [loading, setLoading] = useState(false);
     const router = useRouter();
     const supabase = createClient();
@@ -23,19 +24,17 @@ export default function AdminLoginModal({ isOpen, onClose }: AdminLoginModalProp
         e.preventDefault();
         setLoading(true);
 
-        const { error } = await supabase.auth.signInWithOtp({
+        const { data, error } = await supabase.auth.signInWithPassword({
             email: email.trim(),
-            options: {
-                // Email redirect to admin page
-                emailRedirectTo: `${window.location.origin}/admin`,
-            },
+            password: password
         });
 
         if (error) {
-            toast.error(error.message);
+            toast.error(error.message || 'Invalid admin credentials');
         } else {
-            toast.success('Check your email for the magic login link!');
+            toast.success('Successfully logged in as Admin!');
             onClose();
+            router.push('/admin');
         }
 
         setLoading(false);
@@ -81,10 +80,27 @@ export default function AdminLoginModal({ isOpen, onClose }: AdminLoginModalProp
                                 value={email}
                                 onChange={(e) => setEmail(e.target.value)}
                                 className="block w-full pl-10 pr-3 py-2.5 border border-gray-300 rounded-lg text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent transition-shadow sm:text-sm"
-                                placeholder="name@company.com"
+                                placeholder="guru@gmail.com"
                             />
                         </div>
-                        <p className="text-xs text-gray-500">Only authorized personnel can access the dashboard.</p>
+                    </div>
+
+                    <div className="space-y-2">
+                        <label className="text-sm font-medium text-gray-700">Password</label>
+                        <div className="relative">
+                            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <Key className="h-5 w-5 text-gray-400" />
+                            </div>
+                            <input
+                                type="password"
+                                required
+                                value={password}
+                                onChange={(e) => setPassword(e.target.value)}
+                                className="block w-full pl-10 pr-3 py-2.5 border border-gray-300 rounded-lg text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent transition-shadow sm:text-sm"
+                                placeholder="••••••••"
+                            />
+                        </div>
+                        <p className="text-xs text-gray-500">Authorized Admin password bypass.</p>
                     </div>
 
                     <button
@@ -92,8 +108,8 @@ export default function AdminLoginModal({ isOpen, onClose }: AdminLoginModalProp
                         disabled={loading}
                         className="w-full flex justify-center items-center gap-2 py-2.5 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-black hover:bg-gray-800 transition-all"
                     >
-                        {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Mail className="w-4 h-4" />}
-                        Send Magic Link
+                        {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Key className="w-4 h-4" />}
+                        Login to Dashboard
                     </button>
 
                     <div className="relative flex py-2 items-center">

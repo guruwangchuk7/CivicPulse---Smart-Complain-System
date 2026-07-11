@@ -1,6 +1,7 @@
 export const ADMIN_EMAILS = [
     'guruwangchuk1234@gmail.com',
-    'admin@civicpulse.com' // Keeping the default one too
+    'admin@civicpulse.com',
+    'guru@gmail.com'
 ];
 
 export function isAdmin(email?: string | null): boolean {
