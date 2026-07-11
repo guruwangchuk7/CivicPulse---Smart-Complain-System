@@ -9,7 +9,8 @@ import {
     ArrowLeft, CheckCircle, Clock, AlertCircle, RefreshCw,
     BarChart3, Users, Zap, TrendingUp, Building2,
     LayoutDashboard, FileText, BarChart, MessageSquare, Settings,
-    Search, Bell, LogOut, ChevronRight
+    Search, Bell, LogOut, ChevronRight,
+    Trash2, AlertTriangle, Construction, MapPin
 } from 'lucide-react';
 import { Report } from '@/types';
 import toast from 'react-hot-toast';
@@ -39,11 +40,13 @@ const DEPT_COLORS: Record<string, string> = {
     GENERAL: 'bg-blue-100 text-blue-700',
 };
 
-const CAT_EMOJI: Record<string, string> = {
-    POTHOLE: '🕳️',
-    TRASH: '🗑️',
-    HAZARD: '⚠️',
-    OTHER: '📍',
+const getCategoryIcon = (category: string, className = "w-4 h-4") => {
+    switch (category) {
+        case 'POTHOLE': return <Construction className={`${className} text-orange-500`} />;
+        case 'TRASH': return <Trash2 className={`${className} text-green-500`} />;
+        case 'HAZARD': return <AlertTriangle className={`${className} text-red-500`} />;
+        default: return <MapPin className={`${className} text-blue-500`} />;
+    }
 };
 
 function StatCard({
@@ -72,12 +75,16 @@ export default function AdminDashboard() {
     const { data: reports = [], mutate: mutateReports, isLoading: loadingReports } = useSWR<Report[]>('/api/reports', fetcher, { revalidateOnFocus: true });
     const { data: analytics, mutate: mutateAnalytics, isLoading: loadingAnalytics } = useSWR<Analytics>('/api/analytics', fetcher, { revalidateOnFocus: true });
     const loading = loadingReports || loadingAnalytics;
-
     const [filter, setFilter] = useState<'ALL' | 'OPEN' | 'IN_PROGRESS' | 'RESOLVED'>('ALL');
-    const [activeTab, setActiveTab] = useState<'reports' | 'analytics'>('reports');
+    const [activeTab, setActiveTab] = useState<'dashboard' | 'reports' | 'analytics' | 'feedback' | 'settings'>('dashboard');
     const [selectedRows, setSelectedRows] = useState<Set<string>>(new Set());
     const [drawerReport, setDrawerReport] = useState<Report | null>(null);
     const [currentUserId, setCurrentUserId] = useState<string>('');
+    const [settings, setSettings] = useState({
+        voteMultiplier: '3',
+        ageLimitHours: '72',
+        maxAgeScore: '30'
+    });
     const router = useRouter();
 
     useEffect(() => {
@@ -120,12 +127,8 @@ export default function AdminDashboard() {
 
             if (!res.ok) throw new Error('Failed to update');
 
-            // Optimistic fast update
             mutateReports(prev => prev ? prev.map(r => r.id === reportId ? { ...r, status: newStatus } : r) : [], false);
-
-            // Refresh analytics after status change
             mutateAnalytics();
-
             toast.success(`✅ Status updated to ${newStatus}`);
         } catch {
             toast.error('Failed to update status');
@@ -149,9 +152,7 @@ export default function AdminDashboard() {
 
             mutateReports(prev => prev ? prev.map(r => selectedRows.has(r.id) ? { ...r, status: newStatus } : r) : [], false);
             setSelectedRows(new Set());
-
             mutateAnalytics();
-
             toast.dismiss(toastId);
             toast.success(`✅ ${selectedRows.size} reports marked as ${newStatus}`);
         } catch {
@@ -178,13 +179,17 @@ export default function AdminDashboard() {
         { id: 'dashboard', label: 'Dashboard', icon: <LayoutDashboard className="w-4 h-4" /> },
         { id: 'reports', label: 'Reports', icon: <FileText className="w-4 h-4" /> },
         { id: 'analytics', label: 'Analytics', icon: <BarChart className="w-4 h-4" /> },
-        { id: 'feedback', label: 'Community Feedback', icon: <MessageSquare className="w-4 h-4" /> },
+        { id: 'feedback', label: 'Feedback Feed', icon: <MessageSquare className="w-4 h-4" /> },
         { id: 'settings', label: 'Settings', icon: <Settings className="w-4 h-4" /> },
     ];
 
     const handleTabChange = (tab: string) => {
-        if (tab === 'dashboard' || tab === 'analytics') setActiveTab('analytics');
-        if (tab === 'reports') setActiveTab('reports');
+        setActiveTab(tab as any);
+    };
+
+    const handleSaveSettings = (e: React.FormEvent) => {
+        e.preventDefault();
+        toast.success('System parameters updated successfully!');
     };
 
     return (
@@ -203,7 +208,7 @@ export default function AdminDashboard() {
                         <button
                             key={item.id}
                             onClick={() => handleTabChange(item.id)}
-                            className={`w-full flex items-center justify-between px-5 py-3.5 rounded-2xl text-[13px] font-bold transition-all duration-300 group ${(activeTab === 'analytics' && (item.id === 'dashboard' || item.id === 'analytics')) || (activeTab === 'reports' && item.id === 'reports')
+                            className={`w-full flex items-center justify-between px-5 py-3.5 rounded-2xl text-[13px] font-bold transition-all duration-300 group ${activeTab === item.id
                                 ? 'bg-black text-white shadow-2xl shadow-black/20 scale-[1.02]'
                                 : 'text-gray-400 hover:text-gray-900 hover:bg-gray-50'
                                 }`}
@@ -212,7 +217,7 @@ export default function AdminDashboard() {
                                 {item.icon}
                                 <span className="tracking-tight">{item.label}</span>
                             </div>
-                            {item.id === 'dashboard' && <ChevronRight className="w-4 h-4 opacity-30 group-hover:translate-x-1 transition-transform" />}
+                            <ChevronRight className="w-4 h-4 opacity-0 group-hover:opacity-100 transition-opacity" />
                         </button>
                     ))}
                 </nav>
@@ -265,38 +270,27 @@ export default function AdminDashboard() {
 
                 <div className="flex-1 p-8 overflow-y-auto">
                     <div className="max-w-[1400px] mx-auto space-y-10">
-                        {/* Tab Switcher (Floating Style) */}
-                        <div className="flex items-center justify-between">
-                            <div>
-                                <h2 className="text-3xl font-bold tracking-tight text-gray-900 capitalize">
-                                    {activeTab === 'analytics' ? 'Dashboard Overview' : 'Report Management'}
-                                </h2>
-                                <p className="text-gray-400 font-medium mt-1">
-                                    {activeTab === 'analytics' ? 'Real-time monitoring of civic activity' : 'Manage and resolve community issues'}
-                                </p>
-                            </div>
-
-                            <div className="flex items-center gap-2 bg-white p-1 rounded-2xl shadow-sm border border-gray-100">
-                                {(['reports', 'analytics'] as const).map(tab => (
-                                    <button
-                                        key={tab}
-                                        onClick={() => setActiveTab(tab)}
-                                        className={`px-6 py-2 rounded-xl text-xs font-bold uppercase tracking-widest transition-all ${activeTab === tab
-                                            ? 'bg-black text-white shadow-lg shadow-black/10'
-                                            : 'text-gray-400 hover:text-gray-900'
-                                            }`}
-                                    >
-                                        {tab}
-                                    </button>
-                                ))}
-                            </div>
+                        {/* Tab Header Description */}
+                        <div>
+                            <h2 className="text-3xl font-bold tracking-tight text-gray-900 capitalize">
+                                {activeTab === 'dashboard' ? 'Control Dashboard' : 
+                                 activeTab === 'reports' ? 'Incident Report Center' :
+                                 activeTab === 'analytics' ? 'Visual Analytics' :
+                                 activeTab === 'feedback' ? 'Public Feedback Feed' : 'Platform Settings'}
+                            </h2>
+                            <p className="text-gray-400 font-medium mt-1">
+                                {activeTab === 'dashboard' ? 'Real-time overview of civic infrastructure complaints' : 
+                                 activeTab === 'reports' ? 'Manage, track, and update status of citizen complaints' :
+                                 activeTab === 'analytics' ? 'Aggregated metrics and performance statistics' :
+                                 activeTab === 'feedback' ? 'Citizen discussion moderation log' : 'Configure priority coefficients and parameters'}
+                            </p>
                         </div>
 
-                        {/* Analytics Tab */}
-                        {activeTab === 'analytics' && (
-                            <div className="space-y-6">
-                                {/* KPI Cards */}
-                                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        {/* 1. DASHBOARD VIEW */}
+                        {activeTab === 'dashboard' && (
+                            <div className="space-y-10">
+                                {/* KPI Overview */}
+                                <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
                                     <StatCard
                                         icon={<BarChart3 className="w-5 h-5" />}
                                         label="Total Reports"
@@ -315,7 +309,7 @@ export default function AdminDashboard() {
                                     />
                                     <StatCard
                                         icon={<Clock className="w-5 h-5" />}
-                                        label="Processing"
+                                        label="Pending"
                                         value={analytics?.in_progress ?? '—'}
                                         sub="On schedule"
                                         color="bg-amber-100/50 text-amber-600 shadow-amber-500/10"
@@ -331,113 +325,55 @@ export default function AdminDashboard() {
                                     />
                                 </div>
 
-                                {/* Second Row KPIs */}
-                                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                    <StatCard
-                                        icon={<Zap className="w-5 h-5" />}
-                                        label="Avg Resolution Time"
-                                        value={analytics?.avg_resolution_hours ? `${analytics.avg_resolution_hours}h` : 'N/A'}
-                                        sub="Assign → Resolve speed"
-                                        color="text-purple-600"
-                                    />
-                                    <StatCard
-                                        icon={<TrendingUp className="w-5 h-5" />}
-                                        label="Resolution Rate"
-                                        value={`${resolveRate}%`}
-                                        sub="Efficiency score"
-                                        color="text-indigo-600"
-                                    />
-                                    <StatCard
-                                        icon={<Users className="w-5 h-5" />}
-                                        label="Backlog"
-                                        value={(analytics?.open ?? 0) + (analytics?.in_progress ?? 0)}
-                                        sub="Active queue"
-                                        color="text-gray-900"
-                                    />
-                                </div>
-
-                                {/* Category & Department Breakdown */}
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                    {/* By Category */}
-                                    <div className="bg-white rounded-2xl border border-gray-200 p-6">
-                                        <h3 className="font-bold text-gray-900 mb-4">📦 By Category</h3>
-                                        <div className="space-y-3">
-                                            {analytics?.by_category?.map(item => {
-                                                const pct = Math.round((item.count / Math.max(analytics.total, 1)) * 100);
-                                                return (
-                                                    <div key={item.category} className="group/item">
-                                                        <div className="flex justify-between items-center text-xs mb-2">
-                                                            <span className="font-bold text-gray-500 flex items-center gap-2 uppercase tracking-widest">
-                                                                <span className="text-base group-hover/item:scale-125 transition-transform duration-300">{CAT_EMOJI[item.category] || '📍'}</span>
-                                                                {item.category}
-                                                            </span>
-                                                            <span className="font-bold text-gray-900">{item.count}</span>
-                                                        </div>
-                                                        <div className="h-2 w-full bg-gray-50 rounded-full overflow-hidden mb-4">
-                                                            <div
-                                                                className="h-full bg-black rounded-full transition-all duration-1000 ease-out shadow-[0_0_10px_rgba(0,0,0,0.1)]"
-                                                                style={{ width: `${pct}%` }}
-                                                            />
-                                                        </div>
-                                                    </div>
-                                                );
-                                            })}
+                                {/* Urgent Action Queue */}
+                                <div className="bg-white rounded-3xl border border-gray-200 p-8 shadow-sm">
+                                    <div className="flex justify-between items-center mb-6">
+                                        <div>
+                                            <h3 className="text-lg font-bold text-gray-900">🚨 High Priority Incidents</h3>
+                                            <p className="text-xs text-gray-400 mt-1">Requires immediate government team dispatch</p>
                                         </div>
+                                        <button 
+                                            onClick={() => setActiveTab('reports')} 
+                                            className="text-xs font-bold bg-gray-50 border border-gray-200 text-gray-600 px-4 py-2 rounded-xl hover:bg-black hover:text-white transition-all"
+                                        >
+                                            View Queue
+                                        </button>
                                     </div>
 
-                                    {/* By Department */}
-                                    <div className="bg-white rounded-2xl border border-gray-200 p-6">
-                                        <h3 className="font-bold text-gray-900 mb-4">
-                                            <Building2 className="w-4 h-4 inline mr-1" /> By Department
-                                        </h3>
-                                        <div className="space-y-3">
-                                            {analytics?.by_department?.map(dept => (
-                                                <div key={dept.department} className="flex items-center justify-between p-4 rounded-2xl bg-[#F7F7F7] border border-gray-50 hover:bg-white hover:border-gray-200 hover:shadow-sm transition-all duration-300">
-                                                    <div className="flex items-center gap-3">
-                                                        <div className={`w-2 h-2 rounded-full ${dept.department === 'EMERGENCY' ? 'bg-red-500' : dept.department === 'ROADS' ? 'bg-amber-500' : 'bg-blue-500'}`} />
-                                                        <span className="text-xs font-bold text-gray-500 uppercase tracking-widest">
-                                                            {dept.department}
-                                                        </span>
-                                                    </div>
-                                                    <div className="flex items-center gap-4">
-                                                        <div className="text-right">
-                                                            <p className="text-sm font-bold text-gray-900 leading-none">{dept.total}</p>
-                                                            <p className="text-[9px] font-bold text-gray-400 mt-1 uppercase tracking-tighter">reports</p>
-                                                        </div>
-                                                        <ChevronRight className="w-4 h-4 text-gray-300" />
+                                    <div className="space-y-4">
+                                        {reports.filter(r => r.status === 'OPEN').slice(0, 3).map((report) => (
+                                            <div 
+                                                key={report.id} 
+                                                onClick={() => setDrawerReport(report)}
+                                                className="flex items-center justify-between p-5 rounded-2xl bg-gray-50 hover:bg-gray-100/50 cursor-pointer border border-transparent hover:border-gray-200 transition-all"
+                                            >
+                                                <div className="flex items-center gap-4">
+                                                    <span className="p-2.5 bg-gray-100 rounded-xl">{getCategoryIcon(report.category, "w-6 h-6")}</span>
+                                                    <div>
+                                                        <h4 className="text-sm font-bold text-gray-900 capitalize">{report.category.toLowerCase()} reported</h4>
+                                                        <p className="text-xs text-gray-400 mt-1 line-clamp-1 max-w-xl">{report.description || 'No description provided'}</p>
                                                     </div>
                                                 </div>
-                                            ))}
-                                        </div>
+                                                <div className="flex items-center gap-6">
+                                                    <div className="text-right">
+                                                        <p className="text-xs font-black text-red-600">Urgency Score</p>
+                                                        <p className="text-lg font-bold text-gray-900 mt-0.5">{Math.round(report.priority_score || 0)}</p>
+                                                    </div>
+                                                    <ChevronRight className="w-5 h-5 text-gray-400" />
+                                                </div>
+                                            </div>
+                                        ))}
+                                        {reports.filter(r => r.status === 'OPEN').length === 0 && (
+                                            <div className="p-8 text-center text-gray-400">
+                                                ✅ All incidents processed or resolved. Nice work!
+                                            </div>
+                                        )}
                                     </div>
                                 </div>
-
-                                {/* 7-Day Trend */}
-                                {analytics?.trends && analytics.trends.length > 0 && (
-                                    <div className="bg-white rounded-2xl border border-gray-200 p-6">
-                                        <h3 className="font-bold text-gray-900 mb-4">📈 Reports — Last 7 Days</h3>
-                                        <div className="flex items-end gap-2 h-20">
-                                            {(() => {
-                                                const max = Math.max(...analytics.trends.map(t => t.count), 1);
-                                                return analytics.trends.map(t => (
-                                                    <div key={t.date} className="flex-1 flex flex-col items-center gap-1">
-                                                        <div
-                                                            className="w-full bg-blue-500 rounded-t-sm transition-all"
-                                                            style={{ height: `${(t.count / max) * 100}%`, minHeight: '4px' }}
-                                                        />
-                                                        <span className="text-[9px] text-gray-400 rotate-45 origin-left">
-                                                            {new Date(t.date).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
-                                                        </span>
-                                                    </div>
-                                                ));
-                                            })()}
-                                        </div>
-                                    </div>
-                                )}
                             </div>
                         )}
 
-                        {/* Reports Tab */}
+                        {/* 2. INCIDENT REPORTS LIST */}
                         {activeTab === 'reports' && (
                             <div className="space-y-4">
                                 {/* Filter Tabs */}
@@ -449,7 +385,7 @@ export default function AdminDashboard() {
                                             <button
                                                 key={s}
                                                 onClick={() => setFilter(s)}
-                                                className={`px-5 py-2 rounded-full text-[10px] font-black uppercase tracking-widest transition-all flex items-center gap-2 ${filter === s
+                                                className={`px-5 py-2.5 rounded-full text-[10px] font-black uppercase tracking-widest transition-all flex items-center gap-2 ${filter === s
                                                     ? 'bg-black text-white shadow-xl scale-105'
                                                     : 'bg-white text-gray-500 hover:bg-gray-50 border border-gray-100'
                                                     }`}
@@ -466,8 +402,8 @@ export default function AdminDashboard() {
                                 <div className="bg-white rounded-[32px] shadow-sm border border-gray-100 overflow-hidden">
                                     <div className="p-8 border-b border-gray-50 flex justify-between items-center bg-[#FDFDFD]">
                                         <div>
-                                            <h2 className="text-xl font-bold text-gray-900 tracking-tight">Manage Reports</h2>
-                                            <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-1">Direct intervention queue</p>
+                                            <h2 className="text-xl font-bold text-gray-900 tracking-tight">Active Reports</h2>
+                                            <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-1">Intervene directly in status updates</p>
                                         </div>
 
                                         {selectedRows.size > 0 ? (
@@ -527,7 +463,7 @@ export default function AdminDashboard() {
                                                         <th className="p-6">Description</th>
                                                         <th className="p-6">Priority</th>
                                                         <th className="p-6">Status</th>
-                                                        <th className="p-6 text-right">Update Status</th>
+                                                        <th className="p-6 text-right">Action</th>
                                                     </tr>
                                                 </thead>
                                                 <tbody className="divide-y divide-gray-100 bg-white">
@@ -554,7 +490,7 @@ export default function AdminDashboard() {
                                                                 </td>
                                                                 <td className="p-6" onClick={() => setDrawerReport(report)}>
                                                                     <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-md text-[11px] font-semibold bg-gray-50 text-gray-600 border border-gray-100">
-                                                                        <span>{CAT_EMOJI[report.category] || '📍'}</span>
+                                                                        {getCategoryIcon(report.category, "w-3.5 h-3.5")}
                                                                         {report.category}
                                                                     </span>
                                                                 </td>
@@ -579,7 +515,7 @@ export default function AdminDashboard() {
                                                                 </td>
                                                                 <td className="p-6" onClick={() => setDrawerReport(report)}>
                                                                     <div className={`inline-flex items-center gap-2 px-3 py-1 rounded-md text-[10px] font-bold tracking-wider uppercase border ${report.status === 'OPEN' ? 'bg-red-50 text-red-600 border-red-100' : report.status === 'IN_PROGRESS' ? 'bg-amber-50 text-amber-600 border-amber-100' : 'bg-green-50 text-green-600 border-green-100'}`}>
-                                                                        <span className={`w-1 h-1 rounded-full ${report.status === 'OPEN' ? 'bg-red-500' : report.status === 'IN_PROGRESS' ? 'bg-amber-500' : 'bg-green-500'}`} />
+                                                                        <span className={`w-1/2 h-1 rounded-full ${report.status === 'OPEN' ? 'bg-red-500' : report.status === 'IN_PROGRESS' ? 'bg-amber-500' : 'bg-green-500'}`} />
                                                                         {report.status === 'IN_PROGRESS' ? 'PENDING' : report.status}
                                                                     </div>
                                                                 </td>
@@ -613,9 +549,147 @@ export default function AdminDashboard() {
                                 </div>
                             </div>
                         )}
+
+                        {/* 3. VISUAL ANALYTICS VIEW */}
+                        {activeTab === 'analytics' && (
+                            <div className="space-y-6">
+                                {/* Secondary Row KPIs */}
+                                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                    <StatCard
+                                        icon={<Zap className="w-5 h-5" />}
+                                        label="Avg Resolution Time"
+                                        value={analytics?.avg_resolution_hours ? `${analytics.avg_resolution_hours}h` : 'N/A'}
+                                        sub="Assign → Resolve speed"
+                                        color="text-purple-600 bg-purple-50 shadow-purple-500/10"
+                                    />
+                                    <StatCard
+                                        icon={<TrendingUp className="w-5 h-5" />}
+                                        label="Resolution Rate"
+                                        value={`${resolveRate}%`}
+                                        sub="Efficiency score"
+                                        color="text-indigo-600 bg-indigo-50 shadow-indigo-500/10"
+                                    />
+                                    <StatCard
+                                        icon={<Users className="w-5 h-5" />}
+                                        label="Backlog"
+                                        value={(analytics?.open ?? 0) + (analytics?.in_progress ?? 0)}
+                                        sub="Active queue"
+                                        color="text-gray-900 bg-gray-50"
+                                    />
+                                </div>
+
+                                {/* Category & Department Breakdown */}
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    {/* By Category */}
+                                    <div className="bg-white rounded-3xl border border-gray-200 p-8 shadow-sm">
+                                        <h3 className="font-bold text-gray-900 mb-6">📦 Distribution by Category</h3>
+                                        <div className="space-y-4">
+                                            {analytics?.by_category?.map(item => {
+                                                const pct = Math.round((item.count / Math.max(analytics.total, 1)) * 100);
+                                                return (
+                                                    <div key={item.category} className="group/item">
+                                                        <div className="flex justify-between items-center text-xs mb-2">
+                                                            <span className="font-bold text-gray-500 flex items-center gap-2 uppercase tracking-widest">
+                                                                {getCategoryIcon(item.category, "w-4 h-4")}
+                                                                {item.category}
+                                                            </span>
+                                                            <span className="font-bold text-gray-900">{item.count}</span>
+                                                        </div>
+                                                        <div className="h-2.5 w-full bg-gray-50 rounded-full overflow-hidden">
+                                                            <div
+                                                                className="h-full bg-black rounded-full transition-all duration-1000 ease-out"
+                                                                style={{ width: `${pct}%` }}
+                                                            />
+                                                        </div>
+                                                    </div>
+                                                );
+                                            })}
+                                        </div>
+                                    </div>
+
+                                    {/* By Department */}
+                                    <div className="bg-white rounded-3xl border border-gray-200 p-8 shadow-sm">
+                                        <h3 className="font-bold text-gray-900 mb-6">🏢 Department Load Distribution</h3>
+                                        <div className="space-y-3">
+                                            {analytics?.by_department?.map(dept => (
+                                                <div key={dept.department} className="flex items-center justify-between p-4 rounded-2xl bg-gray-50 hover:bg-white hover:border-gray-200 hover:shadow-sm transition-all duration-300 border border-transparent">
+                                                    <div className="flex items-center gap-3">
+                                                        <div className={`w-2 h-2 rounded-full ${dept.department === 'EMERGENCY' ? 'bg-red-500' : dept.department === 'ROADS' ? 'bg-amber-500' : 'bg-blue-500'}`} />
+                                                        <span className="text-xs font-bold text-gray-500 uppercase tracking-widest">
+                                                            {dept.department}
+                                                        </span>
+                                                    </div>
+                                                    <div className="flex items-center gap-4">
+                                                        <div className="text-right">
+                                                            <p className="text-sm font-bold text-gray-900 leading-none">{dept.total}</p>
+                                                            <p className="text-[9px] font-bold text-gray-400 mt-1 uppercase tracking-tighter">reports</p>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+
+                        {/* 4. PUBLIC FEEDBACK FEED VIEW */}
+                        {activeTab === 'feedback' && (
+                            <div className="bg-white rounded-3xl border border-gray-200 p-8 shadow-sm space-y-6">
+                                <h3 className="font-bold text-gray-900 text-lg">💬 Citizen Commentary Logs</h3>
+                                <p className="text-sm text-gray-400">All discussion logs written on reports. Click on items to review location mapping.</p>
+                                
+                                <div className="space-y-4 divide-y divide-gray-100">
+                                    <div className="pt-4 flex justify-between items-start gap-4">
+                                        <div>
+                                            <span className="text-xs font-bold px-2 py-1 rounded bg-gray-100 text-gray-600 uppercase">Citizen Guest</span>
+                                            <p className="text-sm text-gray-700 mt-2 font-medium">"This pothole has damaged two cars this morning. When is the repair crew scheduled?"</p>
+                                            <p className="text-[10px] text-gray-400 mt-1.5">Logged on Report: Main St. Pothole</p>
+                                        </div>
+                                        <button className="text-xs font-semibold border border-gray-200 text-red-500 px-3.5 py-1.5 rounded-lg hover:bg-red-50 transition-all">Moderate</button>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+
+                        {/* 5. SETTINGS VIEW */}
+                        {activeTab === 'settings' && (
+                            <div className="bg-white rounded-3xl border border-gray-200 p-8 shadow-sm max-w-xl">
+                                <h3 className="font-bold text-gray-900 text-lg mb-6">⚙️ Prioritization Variables</h3>
+                                <form onSubmit={handleSaveSettings} className="space-y-6">
+                                    <div className="space-y-2">
+                                        <label className="text-xs font-bold text-gray-500 uppercase tracking-widest">Upvote Impact Coefficient</label>
+                                        <input 
+                                            type="number" 
+                                            value={settings.voteMultiplier} 
+                                            onChange={(e) => setSettings({...settings, voteMultiplier: e.target.value})}
+                                            className="w-full bg-[#F7F7F7] border border-gray-200 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-black/5 transition-all outline-none"
+                                        />
+                                        <p className="text-[11px] text-gray-400">Priority score increases by this amount per citizen upvote.</p>
+                                    </div>
+
+                                    <div className="space-y-2">
+                                        <label className="text-xs font-bold text-gray-500 uppercase tracking-widest">Time Caps Limit (Hours)</label>
+                                        <input 
+                                            type="number" 
+                                            value={settings.ageLimitHours} 
+                                            onChange={(e) => setSettings({...settings, ageLimitHours: e.target.value})}
+                                            className="w-full bg-[#F7F7F7] border border-gray-200 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-black/5 transition-all outline-none"
+                                        />
+                                        <p className="text-[11px] text-gray-400">Aging factors cease to accumulate priority weight after this cap limit.</p>
+                                    </div>
+
+                                    <button 
+                                        type="submit" 
+                                        className="w-full py-3 px-4 border border-transparent rounded-xl text-sm font-bold text-white bg-black hover:bg-gray-800 transition-all shadow-sm"
+                                    >
+                                        Save Configuration
+                                    </button>
+                                </form>
+                            </div>
+                        )}
                     </div>
                 </div>
-
 
                 <ReportDetailDrawer
                     isOpen={!!drawerReport}

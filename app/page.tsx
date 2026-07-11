@@ -259,65 +259,7 @@ export default function LandingPage() {
         </div>
       </div>
 
-      {/* Trust Builders: Meet the Developer */}
-      <div id="developer" className="bg-gray-900 py-24 sm:py-32">
-        <div className="mx-auto max-w-7xl px-6 lg:px-12">
-          <div className="mx-auto max-w-2xl text-center mb-16">
-            <p className="text-base font-semibold leading-7 text-blue-400 uppercase tracking-wide">Social Proof</p>
-            <h2 className="text-3xl font-bold tracking-tight text-white sm:text-4xl">Meet the Team</h2>
-            <p className="mt-4 text-lg leading-8 text-gray-400">
-              Built with passion and purpose for our community.
-            </p>
-          </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-12 lg:gap-24">
-            {/* Lead Developer */}
-            <div className="flex flex-col items-center">
-              <div className="h-24 w-24 rounded-full bg-gradient-to-r from-blue-500 to-indigo-600 p-[2px] mb-6">
-                <div className="h-full w-full rounded-full bg-gray-900 flex items-center justify-center text-3xl font-bold text-white">
-                  GW
-                </div>
-              </div>
-              <div className="text-center">
-                <h3 className="text-xl font-semibold text-white">Guru Wangchuk</h3>
-                <p className="text-sm text-blue-400 mt-1 uppercase tracking-wider font-semibold">Full Stack Engineer</p>
-                <div className="flex gap-4 mt-4 justify-center">
-                  <a href="https://github.com" target="_blank" rel="noopener noreferrer" className="p-2 rounded-full bg-white/10 text-white hover:bg-white/20 transition-colors">
-                    <Github className="w-5 h-5" />
-                  </a>
-                  <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer" className="p-2 rounded-full bg-blue-600/20 text-blue-400 hover:bg-blue-600/40 transition-colors">
-                    <Linkedin className="w-5 h-5" />
-                  </a>
-                  <a href="mailto:guruwangchuk1234@gmail.com" className="p-2 rounded-full bg-white/10 text-white hover:bg-white/20 transition-colors">
-                    <Mail className="w-5 h-5" />
-                  </a>
-                </div>
-              </div>
-            </div>
-
-            {/* Technical Assistant */}
-            <div className="flex flex-col items-center">
-              <div className="h-24 w-24 rounded-full bg-gradient-to-r from-[#EEEEEE] to-[#929AAB] p-[2px] mb-6">
-                <div className="h-full w-full rounded-full bg-gray-900 flex items-center justify-center text-3xl font-bold text-white">
-                  TD
-                </div>
-              </div>
-              <div className="text-center">
-                <h3 className="text-xl font-semibold text-white">Tshetrim Dema</h3>
-                <p className="text-sm text-blue-400 mt-1 uppercase tracking-wider font-semibold">Technical Assistant</p>
-                <div className="flex gap-4 mt-4 justify-center">
-                  <a href="https://www.linkedin.com/in/tshetrimdema/" target="_blank" rel="noopener noreferrer" className="p-2 rounded-full bg-blue-600/20 text-blue-400 hover:bg-blue-600/40 transition-colors">
-                    <Linkedin className="w-5 h-5" />
-                  </a>
-                  <a href="mailto:tshetrim@example.com" className="p-2 rounded-full bg-white/10 text-white hover:bg-white/20 transition-colors">
-                    <Mail className="w-5 h-5" />
-                  </a>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
 
       {/* Content That Converts: Blog Posts */}
       <section id="blog" className="py-24 bg-gray-50 overflow-hidden">
