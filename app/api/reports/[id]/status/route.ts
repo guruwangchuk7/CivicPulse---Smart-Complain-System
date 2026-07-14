@@ -1,16 +1,11 @@
 import { NextResponse } from 'next/server';
 import { db } from '@/lib/db';
-import { createClient } from '@/utils/supabase/server';
-import { isAdmin } from '@/lib/admin';
+import { requireAdmin } from '@/lib/auth/require-admin';
 
 export async function PATCH(request: Request, { params }: { params: Promise<{ id: string }> }) {
     try {
-        const supabase = await createClient();
-        const { data: { user }, error: authError } = await supabase.auth.getUser();
-
-        if (authError || !user || !isAdmin(user.email)) {
-            return NextResponse.json({ error: 'Unauthorized: Admin access required.' }, { status: 401 });
-        }
+        const auth = await requireAdmin();
+        if (!auth.ok) return auth.response;
 
         const { id: reportId } = await params;
         const body = await request.json();
@@ -21,8 +16,8 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
         }
 
         // Track lifecycle timestamps
-        let query = 'UPDATE reports SET status = ?';
-        const queryParams: any[] = [status];
+        let query = 'UPDATE reports SET status = ?, changed_by = ?, changed_at = NOW()';
+        const queryParams: any[] = [status, auth.email];
 
         if (status === 'IN_PROGRESS') {
             query += ', assigned_at = COALESCE(assigned_at, NOW())';

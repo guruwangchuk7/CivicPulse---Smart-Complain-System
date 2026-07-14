@@ -15,6 +15,8 @@ export async function initDB() {
             priority_score INT DEFAULT 0,
             assigned_at TIMESTAMP NULL,
             resolved_at TIMESTAMP NULL,
+            changed_by VARCHAR(255) NULL,
+            changed_at TIMESTAMP NULL,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
             INDEX idx_status (status),
@@ -73,6 +75,12 @@ export async function initDB() {
         }
         if (!existingColumns.has('resolved_at')) {
             await connection.query("ALTER TABLE reports ADD COLUMN resolved_at TIMESTAMP NULL");
+        }
+        if (!existingColumns.has('changed_by')) {
+            await connection.query("ALTER TABLE reports ADD COLUMN changed_by VARCHAR(255) NULL");
+        }
+        if (!existingColumns.has('changed_at')) {
+            await connection.query("ALTER TABLE reports ADD COLUMN changed_at TIMESTAMP NULL");
         }
 
         console.log('Tables and migrations checked successfully');

@@ -1,10 +1,5 @@
-export const ADMIN_EMAILS = [
-    'guruwangchuk1234@gmail.com',
-    'admin@civicpulse.com',
-    'guru@gmail.com'
-];
+import { isAdminEmail } from './auth/credentials';
 
 export function isAdmin(email?: string | null): boolean {
-    if (!email) return false;
-    return ADMIN_EMAILS.includes(email.toLowerCase());
+    return isAdminEmail(email);
 }

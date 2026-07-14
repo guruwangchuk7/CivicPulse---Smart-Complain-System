@@ -1,18 +1,13 @@
 import { NextResponse } from 'next/server';
 import { db } from '@/lib/db';
-import { createClient } from '@/utils/supabase/server';
-import { isAdmin } from '@/lib/admin';
+import { requireAdmin } from '@/lib/auth/require-admin';
 
 export const dynamic = 'force-dynamic';
 
 export async function GET() {
     try {
-        const supabase = await createClient();
-        const { data: { user }, error: authError } = await supabase.auth.getUser();
-
-        if (authError || !user || !isAdmin(user.email)) {
-            return NextResponse.json({ error: 'Unauthorized: Admin access required.' }, { status: 401 });
-        }
+        const auth = await requireAdmin();
+        if (!auth.ok) return auth.response;
 
         // Overall summary counts
         let summary: any = { total: 0, open_count: 0, in_progress: 0, resolved: 0, avg_resolution_hours: null };

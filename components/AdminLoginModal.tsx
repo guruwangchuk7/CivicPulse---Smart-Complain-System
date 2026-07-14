@@ -4,7 +4,6 @@ import { useState } from 'react';
 import { X, Mail, Loader2, Key } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import toast from 'react-hot-toast';
-import { createClient } from '@/utils/supabase/client';
 
 interface AdminLoginModalProps {
     isOpen: boolean;
@@ -16,7 +15,6 @@ export default function AdminLoginModal({ isOpen, onClose }: AdminLoginModalProp
     const [password, setPassword] = useState('');
     const [loading, setLoading] = useState(false);
     const router = useRouter();
-    const supabase = createClient();
 
     if (!isOpen) return null;
 
@@ -24,17 +22,24 @@ export default function AdminLoginModal({ isOpen, onClose }: AdminLoginModalProp
         e.preventDefault();
         setLoading(true);
 
-        const { data, error } = await supabase.auth.signInWithPassword({
-            email: email.trim(),
-            password: password
-        });
+        try {
+            const res = await fetch('/api/admin/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email: email.trim(), password }),
+            });
 
-        if (error) {
-            toast.error(error.message || 'Invalid admin credentials');
-        } else {
-            toast.success('Successfully logged in as Admin!');
-            onClose();
-            router.push('/admin');
+            const data = await res.json().catch(() => ({}));
+
+            if (!res.ok) {
+                toast.error(data.error || 'Invalid admin credentials');
+            } else {
+                toast.success('Successfully logged in as Admin!');
+                onClose();
+                router.push('/admin');
+            }
+        } catch {
+            toast.error('Network error, please try again');
         }
 
         setLoading(false);
