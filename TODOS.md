@@ -24,13 +24,13 @@
 **Priority:** P1, gated — same trigger as the hosted-infra TODO below.
 **Depends on:** Hosted deployment infra TODO (below) actually starting.
 
-## P3 — Clean up remaining `any`/type-safety lint debt
-**What:** Address any non-blocking `any`-typed lines left over after the security PR fixes only what's blocking the re-enabled build checks.
-**Why:** 36 existing `any`/`as any` instances were found (0 `@ts-ignore`, so no hidden compile errors). The security PR only fixes what's actually blocking; some may remain as warnings.
-**Context:** Surfaced by the outside voice during the 2026-07-14 eng review, verified by direct grep.
-**Effort:** S-M (human: ~2-4h / CC: ~30-45min), depends on how many remain after the security PR.
-**Priority:** P3 — code-quality cleanup, not security-critical.
-**Depends on:** The security PR landing first (T3/item 25).
+## P2 — Fix the 65 pre-existing ESLint errors, then wire lint into the build
+**What:** Fix all 65 real ESLint errors found by `npm run lint` (mostly `no-explicit-any` in `components/CreateReportModal.tsx`/`Map.tsx`, `require()` imports in `query_db.js`/`test_db.js`, unescaped entities, plus one real `react-hooks/set-state-in-effect` bug in `MapHome.tsx`). Once clean, chain `eslint .` into the `build` script (e.g. `"build": "eslint . && next build"`) or add a CI lint step, so lint is actually enforced going forward.
+**Why:** During the 2026-07-14 eng review, removing `eslint.ignoreDuringBuilds` from `next.config.ts` turned out to be a no-op — **Next.js 16 removed built-in `next lint` integration from `next build` entirely**, regardless of that config key (TypeScript checking still works via `typescript.ignoreBuildErrors`; ESLint does not). `npm run lint` correctly surfaces all 65 errors today, but nothing currently forces it to run before a build or deploy. Chaining it into `build` today would break `npm run build` immediately for everyone, which is why this is deferred rather than done inline with the security PR.
+**Context:** Confirmed via direct web research on Next.js 16's Turbopack/flat-config changes. This is a real, unrelated-to-auth gap the security PR surfaced but didn't cause.
+**Effort:** S-M (human: ~3-5h / CC: ~45-60min) to fix the 65 errors; trivial to wire once clean.
+**Priority:** P2 — real lint enforcement is currently a no-op despite `next.config.ts` implying otherwise; worth closing reasonably soon, not urgent today.
+**Depends on:** Nothing — can start anytime.
 
 ## P3 — Migrate admin auth from hand-rolled JWT to real Supabase Auth
 **What:** Replace the hand-rolled signed-JWT admin session (chosen 2026-07-14 as option 1A) with real Supabase Auth via the already-installed `@supabase/ssr`.
